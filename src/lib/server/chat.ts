@@ -1,6 +1,4 @@
-import { env } from "$env/dynamic/private";
 import tmi from "tmi.js";
-import { getAccessToken } from "$lib/server/auth.js";
 import { recordVote } from "$lib/server/store.js";
 
 const RATING_REGEX = /.*?(-?\d+).*?10/;
@@ -8,12 +6,9 @@ const RATING_REGEX = /.*?(-?\d+).*?10/;
 let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
 
-export async function startBot(noRetry: boolean = false) {
+export async function startBot() {
 	const opts = {
-		identity: {
-			username: env.TWITCH_BOT_NAME,
-			password: await getAccessToken(),
-		},
+		channels: ["suyooo"],
 	};
 
 	client = new tmi.client(opts);
@@ -37,11 +32,7 @@ export async function startBot(noRetry: boolean = false) {
 	});
 
 	client.connect().catch(async (e) => {
-		if (!noRetry) {
-			// try refreshing access token before giving up
-			await getAccessToken(true);
-			startBot(true);
-		}
+		setTimeout(() => startBot(), 5000);
 	});
 }
 

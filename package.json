@@ -17,7 +17,6 @@
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@trivago/prettier-plugin-sort-imports": "^4.2.1",
 		"@types/tmi.js": "^1.8.6",
-		"client-oauth2": "^4.3.3",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
 		"svelte": "^4.2.7",
