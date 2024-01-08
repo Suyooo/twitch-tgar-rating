@@ -18,12 +18,12 @@ export const auth = new ClientOAuth2({
 	},
 });
 
+let refreshToken: string | undefined = env.TWITCH_BOT_REFRESH_TOKEN;
 let accessToken: string | undefined = undefined;
 
-if (env.TWITCH_BOT_REFRESH_TOKEN !== undefined) {
+if (refreshToken !== undefined) {
 	try {
-		const token = auth.createToken("", env.TWITCH_BOT_REFRESH_TOKEN, {});
-		accessToken = (await token.refresh()).accessToken;
+		accessToken = await getAccessToken(true);
 	} catch (e) {
 		console.log("Failed to refresh access token, ignoring stored token:");
 		console.log(`    ${e}`);
@@ -35,9 +35,16 @@ if (accessToken === undefined) {
 	console.log(`    ${auth.code.getUri()}`);
 }
 
-export async function getAccessToken() {
-	while (accessToken === undefined) {
-		await new Promise((r) => setTimeout(r, 1000));
+export async function getAccessToken(refresh: boolean = false) {
+	if (refresh) {
+		if (refreshToken) {
+			const token = auth.createToken("", refreshToken, {});
+			accessToken = (await token.refresh()).accessToken;
+		}
+	} else {
+		while (accessToken === undefined) {
+			await new Promise((r) => setTimeout(r, 1000));
+		}
 	}
 	return accessToken;
 }
@@ -45,6 +52,7 @@ export async function getAccessToken() {
 export async function handleAuthCallback(request: Request) {
 	const user = await auth.code.getToken(request.url);
 	accessToken = user.accessToken;
+	refreshToken = user.refreshToken;
 	console.log("Authentication finished. Add this token as TWITCH_BOT_REFRESH_TOKEN in your env variables");
 	console.log(`    ${user.refreshToken}`);
 }
