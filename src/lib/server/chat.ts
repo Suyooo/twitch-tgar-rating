@@ -17,6 +17,7 @@ export async function startBot() {
 		if (self || userstate["user-id"] === undefined) {
 			return;
 		}
+		console.log(`[${channel}] ${userstate.username}: ${message}`);
 
 		const match = message.trim().match(RATING_REGEX);
 		if (match) {
@@ -27,33 +28,33 @@ export async function startBot() {
 		}
 	});
 
-	client.on("connected", (addr, port) => {
+	client.on("connected", () => {
 		console.log(`Bot connected to Twitch chat servers`);
 	});
 
-	client.connect().catch(async (e) => {
+	client.connect().catch(async () => {
 		setTimeout(() => startBot(), 5000);
 	});
 }
 
-export function joinChannel(channel: string) {
+export async function joinChannel(channel: string) {
 	if (!client) return;
 
 	if (channel in channelRefCount) {
 		channelRefCount[channel]++;
 	} else {
 		channelRefCount[channel] = 1;
-		client.join(channel);
+		await client.join(channel);
 	}
 }
 
-export function leaveChannel(channel: string) {
+export async function leaveChannel(channel: string) {
 	if (!client) return;
 
 	if (channelRefCount[channel] > 1) {
 		channelRefCount[channel]--;
 	} else {
 		delete channelRefCount[channel];
-		client.part(channel);
+		await client.part(channel);
 	}
 }

@@ -9,28 +9,39 @@ type PollResult = {
 
 const polls: { [roomCode: string]: PollResult } = {};
 
-export function startPoll(roomCode: string, channels: Set<string>) {
+export async function startPoll(roomCode: string, channels: Set<string>) {
+	let joinedChannels = new Set<string>();
+	try {
+		for (const channel of channels) {
+			await joinChannel(channel);
+			joinedChannels.add(channel);
+		}
+	} catch (e) {
+		for (const channel of joinedChannels) {
+			await leaveChannel(channel).catch(() => null);
+		}
+		throw e;
+	}
+
 	polls[roomCode] = {
 		startedAt: Date.now(),
 		channels,
 		voteCounts: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		userMap: {},
 	};
+}
 
-	for (const channel of channels) {
-		joinChannel(channel);
+export async function endPoll(roomCode: string) {
+	try {
+		for (const channel of polls[roomCode].channels) {
+			await leaveChannel(channel).catch(() => null);
+		}
+	} finally {
+		delete polls[roomCode];
 	}
 }
 
-export function endPoll(roomCode: string) {
-	for (const channel of polls[roomCode].channels) {
-		leaveChannel(channel);
-	}
-
-	delete polls[roomCode];
-}
-
-const POLL_MAX_TIME = 15 * 60 * 1000 * 1000;
+const POLL_MAX_TIME = /* 15 * 60 * 1000 * */ 1000;
 
 export function setupRoomCleanup() {
 	setInterval(() => {
