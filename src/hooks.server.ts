@@ -1,3 +1,3 @@
-import { getAccessToken } from "$lib/server/auth.js";
+import { startBot } from "$lib/server/chat.js";
 
-getAccessToken().then((t) => console.log(t));
+startBot();
