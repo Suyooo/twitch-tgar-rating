@@ -1,3 +1,3 @@
-import { auth } from "$lib/backend/auth.js";
+import { getAccessToken } from "$lib/server/auth.js";
 
-console.log(auth.code.getUri());
+getAccessToken().then((t) => console.log(t));
