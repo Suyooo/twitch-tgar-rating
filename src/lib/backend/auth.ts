@@ -1,13 +1,18 @@
-import { create } from 'simple-oauth2';
+import { APP_URL, TWITCH_APP_ID, TWITCH_APP_SECRET } from "$env/static/private";
+import ClientOAuth2 from "client-oauth2";
 
-const oauth = create({
-	client: {
-		id: process.env.TWITCH_APP_ID,
-		secret: process.env.TWITCH_APP_SECRET
+const state = Math.random().toFixed(32).substring(2);
+
+export const auth = new ClientOAuth2({
+	clientId: TWITCH_APP_ID,
+	clientSecret: TWITCH_APP_SECRET,
+	accessTokenUri: "https://id.twitch.tv/oauth2/token",
+	authorizationUri: "https://id.twitch.tv/oauth2/authorize",
+	redirectUri: APP_URL + "/callback",
+	scopes: ["chat:read"],
+	state,
+	query: {
+		client_id: TWITCH_APP_ID,
+		client_secret: TWITCH_APP_SECRET,
 	},
-	auth: {
-		tokenHost: 'https://id.twitch.tv',
-		tokenPath: '/oauth2/token',
-		authorizePath: '/oauth2/authorize'
-	}
 });
