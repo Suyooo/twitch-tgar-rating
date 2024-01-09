@@ -52,13 +52,21 @@
 	</div>
 	<div class="graphcont" style:height="{graphHeight}vh">
 		<div class="graph">
-			{#each $pollPercentages as pct, rating}
-				{@const barHeight = $pollTotalVotes === 0 ? 0 : pct / pollHighestPercentage}
-				<div class="graph-column">
-					<div class="graph-bar" style:height="{barHeight * 80}%"></div>
-					<div class="graph-label">{rating}</div>
-				</div>
-			{/each}
+			<div class="graph-label-row">
+				{#each $pollPercentages as _, rating}
+					<div class="graph-column">
+						<div class="graph-label">{rating}</div>
+					</div>
+				{/each}
+			</div>
+			<div class="graph-bar-row">
+				{#each $pollPercentages as pct}
+					{@const barHeight = $pollTotalVotes === 0 ? 0 : pct / pollHighestPercentage}
+					<div class="graph-column">
+						<div class="graph-bar" style:height="{barHeight * 100}%"></div>
+					</div>
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>
@@ -131,12 +139,40 @@
 		right: 2em;
 		top: 0;
 		bottom: 1em;
-		display: flex;
-		align-items: stretch;
 	}
 	.graph-column {
 		position: relative;
 		flex: 1 0 0;
+	}
+	.graph-label-row {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 3vh;
+		display: flex;
+		align-items: stretch;
+	}
+	.graph-label {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		text-align: center;
+		line-height: 3vh;
+		font-size: 3vh;
+		font-weight: 700;
+	}
+	.graph-bar-row {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 4vh;
+		top: 0;
+		display: flex;
+		align-items: stretch;
+		overflow: hidden;
 	}
 	.graph-bar {
 		position: absolute;
@@ -146,14 +182,5 @@
 		background-color: #facc15;
 		border-bottom: 1px solid #facc15;
 		transition: height ease-out 0.3s;
-	}
-	.graph-label {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		text-align: center;
-		font-size: 3vh;
-		font-weight: 700;
 	}
 </style>
