@@ -10,7 +10,9 @@
 
 	let channels: string | undefined;
 
-	let pollBusy: boolean = false;
+	let connected: boolean = false,
+		pollBusy: boolean = false;
+	if (browser) socket!.on("initial-state", () => (connected = true));
 
 	function startPoll() {
 		const channelsArray = channels?.split(",").map((s) => s.trim().toLowerCase());
@@ -54,7 +56,7 @@
 	}
 </script>
 
-{#if browser}
+{#if browser && connected}
 	<h2>Poll Controls</h2>
 	<button disabled={$pollActive || pollBusy} on:click={startPoll}>Start Poll</button>
 	<button disabled={!$pollActive || pollBusy} on:click={endPoll}>End Poll</button>
