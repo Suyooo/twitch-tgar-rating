@@ -5,7 +5,6 @@
 	import { createSocket, type CallbackResponse } from "$lib/socketio/client.js";
 
 	const socket = browser ? createSocket($page.params.roomCode, true) : null;
-	console.log(socket);
 
 	let channels: string | undefined;
 
@@ -13,8 +12,8 @@
 	let pollActive: boolean = false;
 	let pollVotes: PollVotes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-	socket?.on("initial-state", (initialVotes: PollVotes | undefined) => {
-		if (initialVotes === undefined) {
+	socket?.on("initial-state", (initialVotes?: PollVotes) => {
+		if (initialVotes == undefined) {
 			pollActive = false;
 		} else {
 			pollActive = true;
@@ -41,12 +40,14 @@
 				alert("There was an error starting the poll - make sure the channels are spelled correctly!");
 			} else {
 				pollActive = true;
+				pollVotes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 			}
 		});
 	}
 
 	socket?.on("poll-started", () => {
 		pollActive = true;
+		pollVotes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 	});
 
 	function endPoll() {
@@ -60,15 +61,21 @@
 					"There was an error stopping the poll - please try refreshing the control panel and stream display!"
 				);
 			} else {
-				console.log(response.finalResult);
+				pollVotes = response.finalResult;
 				pollActive = false;
 			}
 		});
 	}
 
 	socket?.on("poll-ended", (finalResult: PollVotes) => {
-		console.log(finalResult);
+		pollVotes = finalResult;
 		pollActive = false;
+	});
+
+	socket?.on("poll-vote", (rating: number, prevRating?: number) => {
+		if (!pollActive) return; // final results already arrived, don't modify
+		pollVotes[rating]++;
+		if (prevRating !== undefined) pollVotes[prevRating]--;
 	});
 </script>
 
@@ -83,4 +90,8 @@
 <input disabled={pollActive || pollBusy} bind:value={channels} />
 
 <h2>Current/Last Poll Results</h2>
-<div>Poll results go here</div>
+<table>
+	{#each pollVotes as amount, rating}
+		<tr><td>{rating} / 10</td><td>{amount}</td></tr>
+	{/each}
+</table>

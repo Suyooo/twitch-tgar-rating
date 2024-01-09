@@ -1,4 +1,5 @@
 import { joinChannel, leaveChannel } from "$lib/server/chat.js";
+import { broadcast } from "$lib/socketio/server.js";
 
 export type PollVotes = [number, number, number, number, number, number, number, number, number, number, number];
 type PollResult = {
@@ -58,12 +59,18 @@ export function recordVote(channel: string, userId: number, rating: number) {
 	for (const roomCode of Object.keys(polls)) {
 		const p = polls[roomCode];
 		if (p.channels.has(channel)) {
-			if (userId in p.userMap) {
+			const prevRating: number | undefined = p.userMap[userId];
+			if (prevRating !== undefined) {
+				if (prevRating === rating) {
+					// repeated vote
+					continue;
+				}
 				// remove previous vote
 				p.voteCounts[p.userMap[userId]]--;
 			}
 			p.voteCounts[rating]++;
 			p.userMap[userId] = rating;
+			broadcast(roomCode, "poll-vote", rating, prevRating);
 		}
 	}
 }

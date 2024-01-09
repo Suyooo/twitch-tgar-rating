@@ -64,3 +64,8 @@ export function startSocketIO() {
 
 	console.log("Socket.IO started");
 }
+
+export function broadcast(roomCode: string, event: string, ...args: any) {
+	if (io === undefined) return;
+	io.to(roomCode).emit(event, ...args);
+}
