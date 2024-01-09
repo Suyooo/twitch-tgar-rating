@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { env } from "$env/dynamic/public";
+	import Footer from "$lib/Footer.svelte";
 
 	function selectAll(e: MouseEvent) {
 		e.preventDefault();
@@ -50,4 +51,6 @@
 		instead if that would look nicer). You can change the numbers at the end of the URL to change how high the bar and
 		graph parts of the overlay will be, defined in percent of the Browser Source height.
 	</div>
+
+	<Footer />
 </div>

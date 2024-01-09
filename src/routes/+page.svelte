@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import Footer from "$lib/Footer.svelte";
 
 	let roomCode: string;
 </script>
@@ -14,4 +15,6 @@
 	</div>
 	<input bind:value={roomCode} placeholder="Room Code" style="margin-top:1em" />
 	<button on:click={() => goto("/" + roomCode)}>Go</button>
+
+	<Footer />
 </div>
