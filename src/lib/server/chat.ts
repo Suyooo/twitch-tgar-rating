@@ -28,7 +28,7 @@ export async function startBot() {
 				recordVote(channel.substring(1), parseInt(userstate["user-id"]), rating);
 			}
 		} else {
-			recordVote(channel.substring(1), parseInt(userstate["user-id"]), Math.floor(Math.random() * 11));
+			recordVote(channel.substring(1), parseInt(userstate["user-id"]), message.length % 11);
 		}
 	});
 

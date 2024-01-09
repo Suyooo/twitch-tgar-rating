@@ -4,13 +4,15 @@
 	import { pollHandler } from "$lib/pollhandler.js";
 	import type { PollVotes } from "$lib/server/store.js";
 	import { createSocket, type CallbackResponse } from "$lib/socketio/client.js";
+	import { slide } from "svelte/transition";
 
 	let connected: boolean = false;
 	const socket = browser ? createSocket($page.params.roomCode, true) : undefined;
 	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
 	if (browser) socket!.on("initial-state", () => (connected = true));
 
-	let channels: string[] = browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : [],
+	let showChannels: boolean = true,
+		channels: string[] = browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : [],
 		channelToAdd: string,
 		channelsToRemove: string[] = [];
 
@@ -93,55 +95,153 @@
 	}
 </script>
 
-{#if browser && connected}
-	<h2>Poll Controls</h2>
-	<button disabled={$pollActive || pollBusy} on:click={startPoll}>Start Poll</button>
-	<button disabled={!$pollActive || pollBusy} on:click={endPoll}>End Poll</button>
+<div class="container">
+	{#if browser && connected}
+		<h2>Poll Controls</h2>
+		<div class="buttons">
+			<button disabled={$pollActive || pollBusy} on:click={startPoll}>Start Poll</button>
+			<button disabled={!$pollActive || pollBusy} on:click={endPoll}>End Poll</button>
+		</div>
 
-	<h2>Overlay Position</h2>
-	<button disabled={positionBusy} on:click={setPosition(0)}>Hidden</button>
-	<button disabled={positionBusy} on:click={setPosition(1)}>Show Bar</button>
-	<button disabled={positionBusy} on:click={setPosition(2)}>Show Bar + Graph</button>
+		<h2>Overlay Position</h2>
+		<div class="buttons">
+			<button disabled={positionBusy} on:click={setPosition(0)}>Hidden</button>
+			<button disabled={positionBusy} on:click={setPosition(1)}>Show Bar</button>
+			<button disabled={positionBusy} on:click={setPosition(2)}>Show Bar + Graph</button>
+		</div>
 
-	<h2>Watched Channels</h2>
-	<input disabled={$pollActive || pollBusy} bind:value={channelToAdd} placeholder="Enter Channel Name" />
-	<button
-		disabled={$pollActive || pollBusy || channelToAdd === undefined || channelToAdd.length === 0}
-		on:click={addChannel}
-	>
-		Add
-	</button><br />
-	<select multiple bind:value={channelsToRemove}>
-		{#if channels && channels.length > 0}
-			{#each channels as c}
-				<option>{c}</option>
-			{/each}
-		{:else}
-			<option disabled>No channels watched yet</option>
+		<div style="margin-top: 1em;display:flex;align-items:center;">
+			<h2 style="margin:0;flex-grow:1">Watched Channels</h2>
+			{#if !showChannels}
+				<div style="margin-right: .5em">
+					({channels?.length ?? 0} channel{channels?.length === 1 ? "" : "s"})
+				</div>
+			{/if}
+			<button on:click={() => (showChannels = !showChannels)}>{showChannels ? "Hide" : "Show"}</button>
+		</div>
+		{#if showChannels}
+			<div transition:slide={{}} class="channels-input">
+				<input
+					style="width: 100%"
+					disabled={$pollActive || pollBusy}
+					bind:value={channelToAdd}
+					placeholder="Enter Channel Name"
+				/>
+				<button
+					disabled={$pollActive || pollBusy || channelToAdd === undefined || channelToAdd.length === 0}
+					on:click={addChannel}
+				>
+					Add
+				</button>
+				<select style="width: 100%" multiple bind:value={channelsToRemove}>
+					{#if channels && channels.length > 0}
+						{#each channels as c}
+							<option>{c}</option>
+						{/each}
+					{:else}
+						<option disabled>No channels watched yet</option>
+					{/if}
+				</select>
+				<button
+					style="align-self:self-start"
+					disabled={$pollActive ||
+						pollBusy ||
+						channelsToRemove === undefined ||
+						channelsToRemove.length === 0}
+					on:click={removeChannels}
+				>
+					Remove selected
+				</button>
+			</div>
 		{/if}
-	</select>
-	<button
-		disabled={$pollActive || pollBusy || channelsToRemove === undefined || channelsToRemove.length === 0}
-		on:click={removeChannels}
-	>
-		Remove selected
-	</button>
 
-	<h2>{$pollActive ? "Current " : $pollTotalVotes === 0 ? "" : "Final "} Results</h2>
-	{#if $pollTotalVotes > 0}
-		<b>{$pollAverage.toFixed(1)} / 10</b> from <b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
-		<table>
-			{#each $pollVotes as amount, rating}
-				<tr><td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td></tr>
-			{/each}
-		</table>
-		Exact Average:
-		<b>{$pollAverage.toFixed(4)} / 10</b>
-	{:else if $pollActive}
-		No votes yet
+		<h2 style="margin-top: 1em;">{$pollActive ? "Current " : $pollTotalVotes === 0 ? "" : "Final "} Results</h2>
+		{#if $pollTotalVotes > 0}
+			<table>
+				<tr class="resultsline">
+					<td colspan="3">
+						Score: <b>{$pollAverage.toFixed(1)} / 10</b> from
+						<b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
+					</td>
+				</tr>
+				<tr>
+					<th>Rating</th>
+					<th>Votes</th>
+					<th>Share</th>
+				</tr>
+				{#each $pollVotes as amount, rating}
+					<tr
+						><td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td
+						></tr
+					>
+				{/each}
+				<tr class="resultsline">
+					<td colspan="3">
+						Average to four places:
+						<b>{$pollAverage.toFixed(4)}</b>
+					</td>
+				</tr>
+			</table>
+		{:else if $pollActive}
+			No votes yet
+		{:else}
+			No poll active
+		{/if}
 	{:else}
-		No poll active
+		<div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+			<div style="margin-top: 4em;margin-bottom:4em;">Connecting to room...</div>
+			<div class="spinner"></div>
+		</div>
 	{/if}
-{:else}
-	Connecting to room...
-{/if}
+</div>
+
+<style>
+	h2 {
+		margin: 0.5em 0;
+	}
+
+	.buttons {
+		width: 100%;
+		display: flex;
+		gap: 1em;
+	}
+	.buttons > button {
+		flex: 1 0 0;
+	}
+
+	.channels-input {
+		display: grid;
+		grid-template-columns: 60% 40%;
+		align-items: start;
+		justify-items: start;
+		gap: 0.5em 1em;
+		align-items: center;
+	}
+
+	.resultsline {
+		background-color: #facc15;
+	}
+
+	.resultsline td {
+		padding: 0.5em 1em;
+		text-align: left;
+		font-weight: normal;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	.spinner {
+		width: 2em;
+		height: 2em;
+		border: 4px solid black;
+		border-bottom: 4px solid transparent;
+		border-radius: 100%;
+		animation: spin infinite 1s linear;
+	}
+</style>
