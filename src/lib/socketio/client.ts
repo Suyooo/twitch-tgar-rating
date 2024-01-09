@@ -1,16 +1,8 @@
 import Client from "socket.io-client";
 
-export function controlSocket(roomCode: string) {
-	const socket = shared(roomCode, true);
-	return socket;
-}
+export type CallbackResponse<T> = (T & { error: false }) | { error: true };
 
-export function displaySocket(roomCode: string) {
-	const socket = shared(roomCode, false);
-	return socket;
-}
-
-function shared(roomCode: string, isControl: boolean) {
+export function createSocket(roomCode: string, isControl: boolean) {
 	console.log("Connecting...");
 	const socket = Client(":3001", { query: { roomCode, isControl: isControl ? "y" : "n" } });
 	return socket;

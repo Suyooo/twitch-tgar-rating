@@ -1,9 +1,10 @@
 import { joinChannel, leaveChannel } from "$lib/server/chat.js";
 
+export type PollVotes = [number, number, number, number, number, number, number, number, number, number, number];
 type PollResult = {
 	startedAt: number;
 	channels: Set<string>;
-	voteCounts: [number, number, number, number, number, number, number, number, number, number, number];
+	voteCounts: PollVotes;
 	userMap: { [userId: number]: number };
 };
 
@@ -67,6 +68,6 @@ export function recordVote(channel: string, userId: number, rating: number) {
 	}
 }
 
-export function getPollResults(roomCode: string): PollResult | undefined {
-	return polls[roomCode];
+export function getPollVotes(roomCode: string): PollResult["voteCounts"] | undefined {
+	return polls[roomCode]?.voteCounts;
 }

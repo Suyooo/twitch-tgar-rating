@@ -1,6 +1,6 @@
 import { env } from "$env/dynamic/public";
 import { Server } from "socket.io";
-import { endPoll, startPoll } from "$lib/server/store.js";
+import { endPoll, getPollVotes, startPoll } from "$lib/server/store.js";
 
 let io: Server | undefined = undefined;
 
@@ -29,12 +29,15 @@ export function startSocketIO() {
 		console.log(`${socket.id} (${isControl ? "control" : "display"}) connected to room ${roomCode}`);
 
 		if (isControl) {
+			socket.emit("initial-state", getPollVotes(roomCode));
+
 			socket.on("poll-start", async (channels, callback) => {
 				console.log(socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString());
 
 				if (Array.isArray(channels) && channels.length > 0 && channels.length <= 10) {
 					try {
 						await startPoll(roomCode, new Set<string>(channels));
+						socket.to(roomCode).emit("poll-started");
 						callback({ error: false });
 					} catch (e) {
 						callback({ error: true });
@@ -48,8 +51,10 @@ export function startSocketIO() {
 				console.log(socket.id + " wants to end a poll on " + roomCode);
 
 				try {
+					const finalResult = getPollVotes(roomCode);
 					await endPoll(roomCode);
-					callback({ error: false });
+					socket.to(roomCode).emit("poll-ended", finalResult);
+					callback({ error: false, finalResult });
 				} catch (e) {
 					callback({ error: true });
 				}
