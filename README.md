@@ -16,5 +16,5 @@ guest user - no passwords or permissions needed - to read the chat there, and re
 To quickly run this on your own machine, download this repo and install the Node.JS runtime (tested on LTS version 20).
 On your terminal, run `npm install` to download dependencies.
 
-Create a file called `.env`, and put `APP_URL=http://localhost:5173`. Then run `npm run dev` to start the app. Once it's
-ready, visit `http://localhost:5173` in your browser to get started.
+Create a file called `.env`, and put `PUBLIC_APP_URL=http://localhost:5173`. Then run `npm run dev` to start the app.
+Once it's ready, visit `http://localhost:5173` in your browser to get started.
