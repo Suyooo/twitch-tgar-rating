@@ -66,6 +66,10 @@ button {
 	background-color: #facc15;
 	border-radius: 0.5em;
 	padding: 0 0.5em;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1em;
 }
 
 @media only screen and (max-width: 600px) {

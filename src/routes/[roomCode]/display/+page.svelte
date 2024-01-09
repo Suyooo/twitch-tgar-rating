@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import Star from "$lib/icons/Star.svelte";
 	import { pollHandler } from "$lib/pollhandler.js";
 	import { createSocket } from "$lib/socketio/client.js";
 	import { slide } from "svelte/transition";
@@ -43,9 +44,9 @@
 				{/if}
 			</div>
 			<div class="bar-score" style:font-size="{barHeight - 2}vh">
-				<div style="height:0;overflow:hidden;">0.0★</div>
+				<div style="height:0;overflow:hidden;">0.0<Star /></div>
 				{#if $pollTotalVotes > 0}
-					<div in:slide={{}}>{$pollAverage.toFixed(1)}★</div>
+					<div in:slide={{}}>{$pollAverage.toFixed(1)}<Star /></div>
 				{/if}
 			</div>
 		</div>

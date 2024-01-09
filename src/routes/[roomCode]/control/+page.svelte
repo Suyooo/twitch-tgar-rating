@@ -5,6 +5,8 @@
 	import type { PollVotes } from "$lib/server/store.js";
 	import { createSocket, type CallbackResponse } from "$lib/socketio/client.js";
 	import { slide } from "svelte/transition";
+	import Collapse from "$lib/icons/Collapse.svelte";
+	import Expand from "$lib/icons/Expand.svelte";
 
 	let connected: boolean = false;
 	const socket = browser ? createSocket($page.params.roomCode, true) : undefined;
@@ -117,7 +119,13 @@
 					({channels?.length ?? 0} channel{channels?.length === 1 ? "" : "s"})
 				</div>
 			{/if}
-			<button on:click={() => (showChannels = !showChannels)}>{showChannels ? "Hide" : "Show"}</button>
+			<button on:click={() => (showChannels = !showChannels)}>
+				{#if showChannels}
+					Hide <Collapse />
+				{:else}
+					Show <Expand />
+				{/if}
+			</button>
 		</div>
 		{#if showChannels}
 			<div transition:slide={{}} class="channels-input">
@@ -170,10 +178,9 @@
 					<th>Share</th>
 				</tr>
 				{#each $pollVotes as amount, rating}
-					<tr
-						><td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td
-						></tr
-					>
+					<tr>
+						<td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td>
+					</tr>
 				{/each}
 				<tr class="resultsline">
 					<td colspan="3">
