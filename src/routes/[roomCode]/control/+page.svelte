@@ -10,22 +10,41 @@
 	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
 	if (browser) socket!.on("initial-state", () => (connected = true));
 
-	let channels: string | undefined;
+	let channels: string[] = browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : [],
+		channelToAdd: string,
+		channelsToRemove: string[] = [];
+
+	function addChannel() {
+		const channelName = channelToAdd
+			?.trim()
+			.toLowerCase()
+			.replaceAll(/[^a-zA-Z0-9_]/g, "");
+		if (channelName === undefined || channelName.length === 0 || channels.some((c) => c === channelName)) return;
+		channels.push(channelName);
+		channels = channels;
+		channelToAdd = "";
+		localStorage.setItem("tgar-channels", JSON.stringify(channels));
+	}
+
+	function removeChannels() {
+		channels = channels.filter((c) => !channelsToRemove.some((cc) => c === cc));
+		channelsToRemove = [];
+		localStorage.setItem("tgar-channels", JSON.stringify(channels));
+	}
 
 	let pollBusy: boolean = false;
 
 	function startPoll() {
-		const channelsArray = channels?.split(",").map((s) => s.trim().toLowerCase());
-		if (channelsArray === undefined || channelsArray.length === 0) {
+		if (channels === undefined || channels.length === 0) {
 			alert("You need to add at least one channel before starting a poll!");
 			return;
-		} else if (channelsArray !== undefined && channelsArray.length > 10) {
+		} else if (channels !== undefined && channels.length > 10) {
 			alert("You can only watch up to 10 channels, please remove some!");
 			return;
 		}
 
 		pollBusy = true;
-		socket!.timeout(5000).emit("poll-start", channelsArray, (err: Error, response: CallbackResponse<{}>) => {
+		socket!.timeout(5000).emit("poll-start", channels, (err: Error, response: CallbackResponse<{}>) => {
 			pollBusy = false;
 			if (err) {
 				alert("Request timed out, please check your internet connection or try refreshing!");
@@ -85,7 +104,28 @@
 	<button disabled={positionBusy} on:click={setPosition(2)}>Show Bar + Graph</button>
 
 	<h2>Watched Channels</h2>
-	<input disabled={$pollActive || pollBusy} bind:value={channels} />
+	<input disabled={$pollActive || pollBusy} bind:value={channelToAdd} placeholder="Enter Channel Name" />
+	<button
+		disabled={$pollActive || pollBusy || channelToAdd === undefined || channelToAdd.length === 0}
+		on:click={addChannel}
+	>
+		Add
+	</button><br />
+	<select multiple bind:value={channelsToRemove}>
+		{#if channels && channels.length > 0}
+			{#each channels as c}
+				<option>{c}</option>
+			{/each}
+		{:else}
+			<option disabled>No channels watched yet</option>
+		{/if}
+	</select>
+	<button
+		disabled={$pollActive || pollBusy || channelsToRemove === undefined || channelsToRemove.length === 0}
+		on:click={removeChannels}
+	>
+		Remove selected
+	</button>
 
 	<h2>{$pollActive ? "Current " : $pollTotalVotes === 0 ? "" : "Final "} Results</h2>
 	{#if $pollTotalVotes > 0}
