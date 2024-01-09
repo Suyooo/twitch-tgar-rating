@@ -59,6 +59,17 @@ export function startSocketIO() {
 					callback({ error: true });
 				}
 			});
+
+			socket.on("overlay-move", async (num, callback) => {
+				console.log(socket.id + " wants to move the overlay for " + roomCode + " to position " + num);
+
+				try {
+					socket.to(roomCode).emit("overlay-moved", num);
+					callback({ error: false });
+				} catch (e) {
+					callback({ error: true });
+				}
+			});
 		}
 	});
 

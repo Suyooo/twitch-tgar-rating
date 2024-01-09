@@ -2,7 +2,7 @@
 	import { page } from "$app/stores";
 	import { pollHandler } from "$lib/pollhandler.js";
 	import { createSocket } from "$lib/socketio/client.js";
-	import { fade, slide } from "svelte/transition";
+	import { slide } from "svelte/transition";
 
 	const socket = createSocket($page.params.roomCode, false);
 	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
@@ -13,7 +13,11 @@
 	$: barHeight = parseFloat($page.url.searchParams.get("barHeight") ?? "12.5");
 	$: graphHeight = parseFloat($page.url.searchParams.get("graphHeight") ?? "30");
 
-	let showStatus: 0 | 1 | 2 = 2;
+	let showStatus: 0 | 1 | 2 = 0;
+	socket.on("overlay-moved", (num) => {
+		showStatus = num;
+	});
+
 	let rotate: boolean = false;
 	setInterval(() => (rotate = !rotate), 5000);
 </script>
@@ -25,7 +29,11 @@
 	<div class="barcont" style:height="{barHeight}vh">
 		<div class="bar">
 			<div class="bar-title" style:font-size="{barHeight - 4}vh">
-				{#if $pollActive}Rate This Game!{:else}Final Score{/if}
+				{#if $pollActive}
+					<div transition:slide={{}}>Rate This Game!</div>
+				{:else}
+					<div transition:slide={{}}>Final Score</div>
+				{/if}
 			</div>
 			<div class="bar-rotator">
 				{#if $pollActive && rotate}
@@ -37,7 +45,7 @@
 			<div class="bar-score" style:font-size="{barHeight - 2}vh">
 				<div style="height:0;overflow:hidden;">0.0★</div>
 				{#if $pollTotalVotes > 0}
-					<div in:fade={{}}>{$pollAverage.toFixed(1)}★</div>
+					<div in:slide={{}}>{$pollAverage.toFixed(1)}★</div>
 				{/if}
 			</div>
 		</div>
@@ -69,11 +77,11 @@
 
 	.overlay {
 		position: absolute;
-		top: 87.5%;
 		left: 0;
 		right: 0;
 		background: linear-gradient(black, rgba(0, 0, 0, 0.95) 15px, black 100%);
 		color: white;
+		transition: top ease-out 0.5s;
 	}
 
 	.barcont {

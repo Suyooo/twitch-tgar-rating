@@ -5,14 +5,14 @@
 	import type { PollVotes } from "$lib/server/store.js";
 	import { createSocket, type CallbackResponse } from "$lib/socketio/client.js";
 
+	let connected: boolean = false;
 	const socket = browser ? createSocket($page.params.roomCode, true) : undefined;
 	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
+	if (browser) socket!.on("initial-state", () => (connected = true));
 
 	let channels: string | undefined;
 
-	let connected: boolean = false,
-		pollBusy: boolean = false;
-	if (browser) socket!.on("initial-state", () => (connected = true));
+	let pollBusy: boolean = false;
 
 	function startPoll() {
 		const channelsArray = channels?.split(",").map((s) => s.trim().toLowerCase());
@@ -54,6 +54,24 @@
 			}
 		});
 	}
+
+	let positionBusy: boolean = false;
+
+	function setPosition(num: number) {
+		return () => {
+			positionBusy = true;
+			socket!.timeout(5000).emit("overlay-move", num, (err: Error, response: CallbackResponse<{}>) => {
+				positionBusy = false;
+				if (err) {
+					alert("Request timed out, please check your internet connection or try refreshing!");
+				} else if (response.error) {
+					alert(
+						"There was an error moving the overlay - please try refreshing the control panel and stream display!"
+					);
+				}
+			});
+		};
+	}
 </script>
 
 {#if browser && connected}
@@ -62,7 +80,9 @@
 	<button disabled={!$pollActive || pollBusy} on:click={endPoll}>End Poll</button>
 
 	<h2>Overlay Position</h2>
-	<button>Hidden</button><button>Show Bar</button><button>Show Bar + Graph</button>
+	<button disabled={positionBusy} on:click={setPosition(0)}>Hidden</button>
+	<button disabled={positionBusy} on:click={setPosition(1)}>Show Bar</button>
+	<button disabled={positionBusy} on:click={setPosition(2)}>Show Bar + Graph</button>
 
 	<h2>Watched Channels</h2>
 	<input disabled={$pollActive || pollBusy} bind:value={channels} />
