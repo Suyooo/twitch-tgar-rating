@@ -28,9 +28,9 @@ export function startSocketIO() {
 		socket.join(roomCode);
 		console.log(`${socket.id} (${isControl ? "control" : "display"}) connected to room ${roomCode}`);
 
-		if (isControl) {
-			socket.emit("initial-state", getPollVotes(roomCode));
+		socket.emit("initial-state", getPollVotes(roomCode));
 
+		if (isControl) {
 			socket.on("poll-start", async (channels, callback) => {
 				console.log(socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString());
 
