@@ -69,13 +69,14 @@
 
 	<h2>{$pollActive ? "Current " : $pollTotalVotes === 0 ? "" : "Final "} Results</h2>
 	{#if $pollTotalVotes > 0}
+		<b>{$pollAverage.toFixed(1)} / 10</b> from <b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
 		<table>
-			Average <b>{$pollAverage.toFixed(2)} / 10</b> from
-			<b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
 			{#each $pollVotes as amount, rating}
 				<tr><td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td></tr>
 			{/each}
 		</table>
+		Exact Average:
+		<b>{$pollAverage.toFixed(4)} / 10</b>
 	{:else if $pollActive}
 		No votes yet
 	{:else}

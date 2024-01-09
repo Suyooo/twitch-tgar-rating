@@ -2,6 +2,7 @@ import tmi from "tmi.js";
 import { recordVote } from "$lib/server/store.js";
 
 const RATING_REGEX = /.*?(-?\d+).+?10/;
+const TEST = true;
 
 let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
@@ -17,14 +18,17 @@ export async function startBot() {
 		if (self || userstate["user-id"] === undefined) {
 			return;
 		}
-		console.log(`[${channel}] ${userstate.username}: ${message}`);
 
-		const match = message.trim().match(RATING_REGEX);
-		if (match) {
-			let rating = parseInt(match[1]);
-			if (rating > 10) rating = 10;
-			if (rating < 0) rating = 0;
-			recordVote(channel.substring(1), parseInt(userstate["user-id"]), rating);
+		if (!TEST) {
+			const match = message.trim().match(RATING_REGEX);
+			if (match) {
+				let rating = parseInt(match[1]);
+				if (rating > 10) rating = 10;
+				if (rating < 0) rating = 0;
+				recordVote(channel.substring(1), parseInt(userstate["user-id"]), rating);
+			}
+		} else {
+			recordVote(channel.substring(1), parseInt(userstate["user-id"]), Math.floor(Math.random() * 11));
 		}
 	});
 

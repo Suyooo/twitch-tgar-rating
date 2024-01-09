@@ -45,13 +45,12 @@ export function pollHandler(socket: Socket | undefined): Handlers {
 	});
 
 	const pollTotalVotes: Readable<number> = derived(pollVotes, (votes) => votes.reduce((p, c) => p + c));
-	const pollAverage: Readable<number> = derived(
-		[pollVotes, pollTotalVotes],
-		([votes, total]) => votes.reduce((p, c, i) => p + c * i, 0) / total
+	const pollAverage: Readable<number> = derived([pollVotes, pollTotalVotes], ([votes, total]) =>
+		total === 0 ? 0 : votes.reduce((p, c, i) => p + c * i, 0) / total
 	);
 	const pollPercentages: Readable<PollVotes> = derived(
 		[pollVotes, pollTotalVotes],
-		([votes, total]) => votes.map((a) => a / total) as PollVotes
+		([votes, total]) => (total === 0 ? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] : votes.map((a) => a / total)) as PollVotes
 	);
 
 	return { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages };
