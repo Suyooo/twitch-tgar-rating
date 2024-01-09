@@ -41,7 +41,7 @@ export async function endPoll(roomCode: string) {
 	}
 }
 
-const POLL_MAX_TIME = /* 15 * 60 * 1000 * */ 1000;
+const POLL_MAX_TIME = 15 * 60 * 1000 * 1000; // 15 minutes
 
 export function setupRoomCleanup() {
 	setInterval(() => {
@@ -50,7 +50,7 @@ export function setupRoomCleanup() {
 				endPoll(roomCode);
 			}
 		}
-	}, 60 * 1000);
+	}, 60 * 1000); // 1 minute
 }
 
 export function recordVote(channel: string, userId: number, rating: number) {

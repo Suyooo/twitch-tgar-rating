@@ -1,7 +1,7 @@
 import tmi from "tmi.js";
 import { recordVote } from "$lib/server/store.js";
 
-const RATING_REGEX = /.*?(-?\d+).*?10/;
+const RATING_REGEX = /.*?(-?\d+).+?10/;
 
 let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};

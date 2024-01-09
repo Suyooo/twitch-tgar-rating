@@ -1,5 +1,10 @@
 <script lang="ts">
+	import { browser } from "$app/environment";
 	import { page } from "$app/stores";
+	import { controlSocket } from "$lib/socketio/client.js";
+
+	const socket = browser ? controlSocket($page.params.roomCode) : null;
+	console.log(socket);
 
 	let channels: string | undefined;
 
@@ -14,42 +19,32 @@
 		}
 
 		pollBusy = true;
-		fetch(`/${$page.params.roomCode}/control`, {
-			method: "POST",
-			body: JSON.stringify({
-				action: "start",
-				channels: channelsArray,
-			}),
-			headers: {
-				"content-type": "application/json",
-			},
-		})
-			.then((res) => {
-				if (res.ok) pollActive = true;
-				else alert("There was an error starting the poll - make sure the channels are spelled correctly!");
-			})
-			.finally(() => (pollBusy = false));
+		socket!.timeout(5000).emit("poll-start", channelsArray, (err: Error, response: { error: boolean }) => {
+			pollBusy = false;
+			if (err) {
+				alert("Request timed out, please check your internet connection or try refreshing!");
+			} else if (response.error) {
+				alert("There was an error starting the poll - make sure the channels are spelled correctly!");
+			} else {
+				pollActive = true;
+			}
+		});
 	}
 
 	function endPoll() {
 		pollBusy = true;
-		fetch(`/${$page.params.roomCode}/control`, {
-			method: "POST",
-			body: JSON.stringify({
-				action: "end",
-			}),
-			headers: {
-				"content-type": "application/json",
-			},
-		})
-			.then((res) => {
-				if (res.ok) pollActive = false;
-				else
-					alert(
-						"There was an error stopping the poll - please try refreshing the control panel and stream display!"
-					);
-			})
-			.finally(() => (pollBusy = false));
+		socket!.timeout(5000).emit("poll-end", (err: Error, response: { error: boolean }) => {
+			pollBusy = false;
+			if (err) {
+				alert("Request timed out, please check your internet connection or try refreshing!");
+			} else if (response.error) {
+				alert(
+					"There was an error stopping the poll - please try refreshing the control panel and stream display!"
+				);
+			} else {
+				pollActive = false;
+			}
+		});
 	}
 </script>
 
