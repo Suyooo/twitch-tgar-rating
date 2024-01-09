@@ -11,6 +11,11 @@
 	let pollBusy: boolean = false;
 	let pollActive: boolean = false;
 	let pollVotes: PollVotes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	let pollTotalVotes: number, pollAverage: number;
+	$: {
+		pollTotalVotes = pollVotes.reduce((p, c) => p + c);
+		pollAverage = pollVotes.reduce((p, c, i) => p + c * i, 0) / pollTotalVotes;
+	}
 
 	socket?.on("initial-state", (initialVotes?: PollVotes) => {
 		if (initialVotes == undefined) {
@@ -89,9 +94,16 @@
 <h2>Watched Channels</h2>
 <input disabled={pollActive || pollBusy} bind:value={channels} />
 
-<h2>Current/Last Poll Results</h2>
-<table>
-	{#each pollVotes as amount, rating}
-		<tr><td>{rating} / 10</td><td>{amount}</td></tr>
-	{/each}
-</table>
+<h2>{pollActive ? "Current " : pollTotalVotes === 0 ? "" : "Final "} Results</h2>
+{#if pollTotalVotes > 0}
+	<table>
+		Average <b>{pollAverage.toFixed(2)} / 10</b> from <b>{pollTotalVotes} votes</b>
+		{#each pollVotes as amount, rating}
+			<tr><td>{rating} / 10</td><td>{amount}</td><td>{((amount / pollTotalVotes) * 100).toFixed(0)}%</td></tr>
+		{/each}
+	</table>
+{:else if pollActive}
+	No votes yet
+{:else}
+	No poll active
+{/if}
