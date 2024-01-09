@@ -1,7 +1,8 @@
 # TGAR Twitch Rating
 
-A little Twitch bot to read chat's opinion. Originally made for ["This Game Ain't Real"](https://thisgameaintreal.carrd.co/)
-(specifically the Game of The Year variant), but it can be used for anything that needs chat to give a rating out of ten.
+A little Twitch bot to read chat's opinion. Originally made for the creative game idea pitching board game
+["This Game Ain't Real"](https://thisgameaintreal.carrd.co/) (specifically the Game of The Year variant), but it can be
+used for anything that needs chat to give a rating out of ten.
 
 ![Example GIF showing the stream overlay](example.gif?raw=true)
 
@@ -18,3 +19,9 @@ On your terminal, run `npm install` to download dependencies.
 
 Create a file called `.env`, and put `PUBLIC_APP_URL=http://localhost:5173`. Then run `npm run dev` to start the app.
 Once it's ready, visit `http://localhost:5173` in your browser to get started.
+
+## Neat stuff I used for this
+
+-   [SvelteKit](https://kit.svelte.dev/)
+-   [Socket.IO](https://socket.io/)
+-   [IconSVG](https://iconsvg.xyz/)
