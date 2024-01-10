@@ -8,9 +8,7 @@ let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
 
 export async function startBot() {
-	const opts = {
-		channels: ["suyooo"],
-	};
+	const opts = {};
 
 	client = new tmi.client(opts);
 
