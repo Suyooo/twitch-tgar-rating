@@ -1,11 +1,9 @@
 import { env } from "$env/dynamic/public";
-import Client from "socket.io-client";
-
-export type CallbackResponse<T> = (T & { error: false }) | { error: true };
+import Client, { Socket } from "socket.io-client";
+import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/events.js";
 
 export function createSocket(roomCode: string, isControl: boolean) {
-	console.log("Connecting...");
-	const socket = Client(env.PUBLIC_SOCKETIO_URL ?? ":3001", {
+	const socket: Socket<ServerToClientEvents, ClientToServerEvents> = Client(env.PUBLIC_SOCKETIO_URL ?? ":3001", {
 		query: { roomCode, isControl: isControl ? "y" : "n" },
 	});
 	return socket;

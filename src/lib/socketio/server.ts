@@ -1,8 +1,9 @@
 import { env } from "$env/dynamic/public";
 import { Server } from "socket.io";
 import { endPoll, getPollVotes, startPoll } from "$lib/server/store.js";
+import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/events.js";
 
-let io: Server | undefined = undefined;
+let io: Server<ClientToServerEvents, ServerToClientEvents> | undefined = undefined;
 
 export function startSocketIO() {
 	if (io !== undefined) return;
@@ -51,7 +52,7 @@ export function startSocketIO() {
 				console.log(socket.id + " wants to end a poll on " + roomCode);
 
 				try {
-					const finalResult = getPollVotes(roomCode);
+					const finalResult = getPollVotes(roomCode)!;
 					await endPoll(roomCode);
 					socket.to(roomCode).emit("poll-ended", finalResult);
 					callback({ error: false, finalResult });
@@ -76,7 +77,7 @@ export function startSocketIO() {
 	console.log("Socket.IO started");
 }
 
-export function broadcast(roomCode: string, event: string, ...args: any) {
+export function broadcast(roomCode: string, event: keyof ServerToClientEvents, ...args: any) {
 	if (io === undefined) return;
 	io.to(roomCode).emit(event, ...args);
 }

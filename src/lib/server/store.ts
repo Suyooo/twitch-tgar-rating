@@ -70,7 +70,7 @@ export function recordVote(channel: string, userId: number, rating: number) {
 			}
 			p.voteCounts[rating]++;
 			p.userMap[userId] = rating;
-			broadcast(roomCode, "poll-vote", rating, prevRating);
+			broadcast(roomCode, "poll-voted", rating, prevRating);
 		}
 	}
 }

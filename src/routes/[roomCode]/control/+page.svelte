@@ -3,10 +3,11 @@
 	import { page } from "$app/stores";
 	import { pollHandler } from "$lib/pollhandler.js";
 	import type { PollVotes } from "$lib/server/store.js";
-	import { createSocket, type CallbackResponse } from "$lib/socketio/client.js";
+	import { createSocket } from "$lib/socketio/client.js";
 	import { slide } from "svelte/transition";
 	import Collapse from "$lib/icons/Collapse.svelte";
 	import Expand from "$lib/icons/Expand.svelte";
+	import type { CallbackResponse } from "$lib/socketio/events.js";
 
 	let connected: boolean = false;
 	const socket = browser ? createSocket($page.params.roomCode, true) : undefined;
@@ -80,7 +81,7 @@
 
 	let positionBusy: boolean = false;
 
-	function setPosition(num: number) {
+	function setPosition(num: 0 | 1 | 2) {
 		return () => {
 			positionBusy = true;
 			socket!.timeout(5000).emit("overlay-move", num, (err: Error, response: CallbackResponse<{}>) => {
