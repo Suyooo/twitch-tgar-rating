@@ -8,7 +8,13 @@ let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
 
 export async function startBot() {
-	const opts = {};
+	const opts = {
+		options: {
+			skipMembership: true,
+			skipUpdatingEmotesets: true,
+			updateEmotesetsTimer: 0,
+		},
+	};
 
 	client = new tmi.client(opts);
 
@@ -34,9 +40,7 @@ export async function startBot() {
 		console.log(`Bot connected to Twitch chat servers`);
 	});
 
-	client.connect().catch(async () => {
-		setTimeout(() => startBot(), 5000);
-	});
+	client.connect();
 }
 
 export async function joinChannel(channel: string) {
@@ -46,7 +50,13 @@ export async function joinChannel(channel: string) {
 		channelRefCount[channel]++;
 	} else {
 		channelRefCount[channel] = 1;
-		await client.join(channel);
+		try {
+			await client.join(channel);
+			await new Promise((r) => setTimeout(r, 500));
+		} catch (e) {
+			delete channelRefCount[channel];
+			throw e;
+		}
 	}
 }
 
@@ -57,6 +67,12 @@ export async function leaveChannel(channel: string) {
 		channelRefCount[channel]--;
 	} else {
 		delete channelRefCount[channel];
-		await client.part(channel);
+		try {
+			await client.part(channel);
+			await new Promise((r) => setTimeout(r, 500));
+		} catch (e) {
+			channelRefCount[channel] = 1;
+			throw e;
+		}
 	}
 }

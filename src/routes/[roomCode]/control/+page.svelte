@@ -49,34 +49,38 @@
 		}
 
 		pollBusy = true;
-		socket!.timeout(5000).emit("poll-start", channels, (err: Error, response: CallbackResponse<{}>) => {
-			pollBusy = false;
-			if (err) {
-				alert("Request timed out, please check your internet connection or try refreshing!");
-			} else if (response.error) {
-				alert("There was an error starting the poll - make sure the channels are spelled correctly!");
-			} else {
-				pollActive.set(true);
-				pollVotes.set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-			}
-		});
+		socket!
+			.timeout(3000 + 500 * channels.length)
+			.emit("poll-start", channels, (err: Error, response: CallbackResponse<{}>) => {
+				pollBusy = false;
+				if (err) {
+					alert("Request timed out, please check your internet connection or try refreshing!");
+				} else if (response.error) {
+					alert("There was an error starting the poll - make sure the channels are spelled correctly!");
+				} else {
+					pollActive.set(true);
+					pollVotes.set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+				}
+			});
 	}
 
 	function endPoll() {
 		pollBusy = true;
-		socket!.timeout(5000).emit("poll-end", (err: Error, response: CallbackResponse<{ finalResult: PollVotes }>) => {
-			pollBusy = false;
-			if (err) {
-				alert("Request timed out, please check your internet connection or try refreshing!");
-			} else if (response.error) {
-				alert(
-					"There was an error stopping the poll - please try refreshing the control panel and stream display!"
-				);
-			} else {
-				pollActive.set(false);
-				pollVotes.set(response.finalResult);
-			}
-		});
+		socket!
+			.timeout(3000 + 500 * channels.length)
+			.emit("poll-end", (err: Error, response: CallbackResponse<{ finalResult: PollVotes }>) => {
+				pollBusy = false;
+				if (err) {
+					alert("Request timed out, please check your internet connection or try refreshing!");
+				} else if (response.error) {
+					alert(
+						"There was an error stopping the poll - please try refreshing the control panel and stream display!"
+					);
+				} else {
+					pollActive.set(false);
+					pollVotes.set(response.finalResult);
+				}
+			});
 	}
 
 	let positionBusy: boolean = false;
