@@ -16,14 +16,13 @@ export function startSocketIO() {
 	});
 
 	io.on("connection", (socket) => {
-		if (!socket.handshake.query.roomCode) {
-			socket.disconnect(true);
-			return;
-		}
-
 		const roomCode = Array.isArray(socket.handshake.query.roomCode)
 			? socket.handshake.query.roomCode[0]
 			: socket.handshake.query.roomCode;
+		if (roomCode === undefined || roomCode.length === 0) {
+			socket.disconnect(true);
+			return;
+		}
 		const isControl = socket.handshake.query.isControl === "y";
 
 		socket.join(roomCode);
@@ -34,16 +33,15 @@ export function startSocketIO() {
 		if (isControl) {
 			socket.on("poll-start", async (channels, callback) => {
 				console.log(socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString());
+				if (!Array.isArray(channels) || channels.length === 0 || channels.length > 10) {
+					callback({ error: true });
+				}
 
-				if (Array.isArray(channels) && channels.length > 0 && channels.length <= 10) {
-					try {
-						await startPoll(roomCode, new Set<string>(channels));
-						socket.to(roomCode).emit("poll-started");
-						callback({ error: false });
-					} catch (e) {
-						callback({ error: true });
-					}
-				} else {
+				try {
+					await startPoll(roomCode, new Set<string>(channels));
+					socket.to(roomCode).emit("poll-started");
+					callback({ error: false });
+				} catch (e) {
 					callback({ error: true });
 				}
 			});
@@ -52,7 +50,12 @@ export function startSocketIO() {
 				console.log(socket.id + " wants to end a poll on " + roomCode);
 
 				try {
-					const finalResult = getPollVotes(roomCode)!;
+					const finalResult = getPollVotes(roomCode);
+					if (finalResult === undefined) {
+						callback({ error: true });
+						return;
+					}
+
 					await endPoll(roomCode);
 					socket.to(roomCode).emit("poll-ended", finalResult);
 					callback({ error: false, finalResult });
@@ -63,6 +66,10 @@ export function startSocketIO() {
 
 			socket.on("overlay-move", async (num, callback) => {
 				console.log(socket.id + " wants to move the overlay for " + roomCode + " to position " + num);
+				if (num !== 0 && num !== 1 && num !== 2) {
+					callback({ error: true });
+					return;
+				}
 
 				try {
 					socket.to(roomCode).emit("overlay-moved", num);
