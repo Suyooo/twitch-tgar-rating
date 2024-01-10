@@ -10,14 +10,17 @@ used for anything that needs chat to give a rating out of ten.
 
 The stream overlay is a web page embedded via OBS' Browser Source, and controlled via a seperate web page that can be
 either opened on the side or on another device. When you start a poll, the bot will join your channel as an anonymous
-guest user - no logins or permissions needed - to read the chat there, and records messages containing ratings.
+guest user - no logins or permissions needed - to read the chat there, and records all ratings sent in it.
 
 ## How can I run it?
 
-To quickly run this on your own machine, download this repo and install the Node.JS runtime (tested on LTS version 20).
-On your terminal, run `npm install` to download dependencies. Create a file called `.env`, and fill it with
-`PUBLIC_APP_URL=http://localhost:5173`. Then, use `npm run dev` to run the project. Once it's started up, visit
-`http://localhost:5173` in your browser to get started.
+There are no download-and-run executables yet, but hopefully soon!
+
+For now, to run this on your own machine, download this repo (click the green "Code" button at the top, pick "Download
+ZIP", extract it somewhere) and [install the Node.JS runtime](https://nodejs.org/) (I've tested this project on LTS
+version 20). Open a terminal in the repo folder (where the `package.json` file is located), and run `npm install` to
+download dependencies. Create a file called `.env`, and fill it with `PUBLIC_APP_URL=http://localhost:5173`. Then, use
+`npm run dev` to run the project. Once it's started up, visit `http://localhost:5173` in your browser to see the app.
 
 Note that this way, the app is only reachable from the same machine you are running it on. You can't open the control
 panel on another device, or send the overlay to others. If you want to do that, you have to build the app (see below)
