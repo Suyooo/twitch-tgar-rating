@@ -84,7 +84,11 @@ export function startSocketIO() {
 	console.log("Socket.IO started");
 }
 
-export function broadcast(roomCode: string, event: keyof ServerToClientEvents, ...args: any) {
+export function broadcast<E extends keyof ServerToClientEvents>(
+	roomCode: string,
+	event: E,
+	...args: Parameters<ServerToClientEvents[E]>
+) {
 	if (io === undefined) return;
 	io.to(roomCode).emit(event, ...args);
 }

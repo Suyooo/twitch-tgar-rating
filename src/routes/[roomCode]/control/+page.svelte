@@ -137,7 +137,11 @@
 					placeholder="Enter Channel Name"
 				/>
 				<button
-					disabled={$pollActive || pollBusy || channelToAdd === undefined || channelToAdd.length === 0}
+					disabled={$pollActive ||
+						pollBusy ||
+						channelToAdd === undefined ||
+						channelToAdd.length === 0 ||
+						channels.length >= 10}
 					on:click={addChannel}
 				>
 					Add
@@ -156,7 +160,8 @@
 					disabled={$pollActive ||
 						pollBusy ||
 						channelsToRemove === undefined ||
-						channelsToRemove.length === 0}
+						channelsToRemove.length === 0 ||
+						channels.length === 0}
 					on:click={removeChannels}
 				>
 					Remove selected

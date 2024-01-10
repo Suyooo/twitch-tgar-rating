@@ -33,12 +33,15 @@ export async function startPoll(roomCode: string, channels: Set<string>) {
 	};
 }
 
-export async function endPoll(roomCode: string) {
+export async function endPoll(roomCode: string, broadcastEnd: boolean = false) {
 	try {
 		for (const channel of polls[roomCode].channels) {
 			await leaveChannel(channel).catch(() => null);
 		}
 	} finally {
+		if (broadcastEnd) {
+			broadcast(roomCode, "poll-ended", getPollVotes(roomCode)!);
+		}
 		delete polls[roomCode];
 	}
 }
@@ -49,7 +52,7 @@ export function setupRoomCleanup() {
 	setInterval(() => {
 		for (const roomCode of Object.keys(polls)) {
 			if (Date.now() > polls[roomCode].startedAt + POLL_MAX_TIME) {
-				endPoll(roomCode);
+				endPoll(roomCode, true);
 			}
 		}
 	}, 60 * 1000); // 1 minute
