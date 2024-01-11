@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/public";
 import { Server } from "socket.io";
+import logger from "$lib/logger.js";
 import { endPoll, getPollVotes, startPoll } from "$lib/server/store.js";
 import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/events.js";
 
@@ -26,13 +27,16 @@ export function startSocketIO() {
 		const isControl = socket.handshake.query.isControl === "y";
 
 		socket.join(roomCode);
-		console.log(`${socket.id} (${isControl ? "control" : "display"}) connected to room ${roomCode}`);
+		logger.debug("SIO", `${socket.id} (${isControl ? "control" : "display"}) connected to room ${roomCode}`);
 
 		socket.emit("initial-state", getPollVotes(roomCode));
 
 		if (isControl) {
 			socket.on("poll-start", async (channels, callback) => {
-				console.log(socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString());
+				logger.debug(
+					"SIO",
+					socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString()
+				);
 				if (!Array.isArray(channels) || channels.length === 0 || channels.length > 10) {
 					callback({ error: true });
 				}
@@ -47,7 +51,7 @@ export function startSocketIO() {
 			});
 
 			socket.on("poll-end", async (callback) => {
-				console.log(socket.id + " wants to end a poll on " + roomCode);
+				logger.debug("SIO", socket.id + " wants to end a poll on " + roomCode);
 
 				try {
 					const finalResult = getPollVotes(roomCode);
@@ -65,7 +69,7 @@ export function startSocketIO() {
 			});
 
 			socket.on("overlay-move", async (num, callback) => {
-				console.log(socket.id + " wants to move the overlay for " + roomCode + " to position " + num);
+				logger.debug("SIO", socket.id + " wants to move the overlay for " + roomCode + " to position " + num);
 				if (num !== 0 && num !== 1 && num !== 2) {
 					callback({ error: true });
 					return;
@@ -81,7 +85,7 @@ export function startSocketIO() {
 		}
 	});
 
-	console.log("Socket.IO started");
+	logger.log("SIO", "Socket.IO started");
 }
 
 export function broadcast<E extends keyof ServerToClientEvents>(

@@ -1,3 +1,4 @@
+import logger from "$lib/logger.js";
 import { joinChannel, leaveChannel } from "$lib/server/chat.js";
 import { broadcast } from "$lib/socketio/server.js";
 
@@ -15,11 +16,14 @@ export async function startPoll(roomCode: string, channels: Set<string>) {
 	let joinedChannels = new Set<string>();
 	try {
 		for (const channel of channels) {
+			logger.debug("STR", `Joining channel ${channel}`);
 			await joinChannel(channel);
 			joinedChannels.add(channel);
 		}
 	} catch (e) {
+		logger.error("STR", `Failed to join last channel, parting from already joined channels`);
 		for (const channel of joinedChannels) {
+			logger.debug("STR", `Parting channel ${channel}`);
 			await leaveChannel(channel).catch(() => null);
 		}
 		throw e;
@@ -36,6 +40,7 @@ export async function startPoll(roomCode: string, channels: Set<string>) {
 export async function endPoll(roomCode: string, broadcastEnd: boolean = false) {
 	try {
 		for (const channel of polls[roomCode].channels) {
+			logger.debug("STR", `Parting channel ${channel}`);
 			await leaveChannel(channel).catch(() => null);
 		}
 	} finally {
@@ -52,6 +57,7 @@ export function setupRoomCleanup() {
 	setInterval(() => {
 		for (const roomCode of Object.keys(polls)) {
 			if (Date.now() > polls[roomCode].startedAt + POLL_MAX_TIME) {
+				logger.debug("STR", `Poll for room ${roomCode} timed out`);
 				endPoll(roomCode, true);
 			}
 		}
@@ -63,6 +69,7 @@ export function recordVote(channel: string, userId: number, rating: number) {
 		const p = polls[roomCode];
 		if (p.channels.has(channel)) {
 			const prevRating: number | undefined = p.userMap[userId];
+			logger.debug("STR", `Recording vote for poll in room ${roomCode}, previous rating = ${prevRating}`);
 			if (prevRating !== undefined) {
 				if (prevRating === rating) {
 					// repeated vote
