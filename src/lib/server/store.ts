@@ -1,5 +1,5 @@
 import logger from "$lib/logger.js";
-import { joinChannel, leaveChannel } from "$lib/server/chat.js";
+import { unwatchChannels, watchChannels } from "$lib/server/chat.js";
 import { broadcast } from "$lib/socketio/server.js";
 
 export type PollVotes = [number, number, number, number, number, number, number, number, number, number, number];
@@ -13,21 +13,7 @@ type PollResult = {
 const polls: { [roomCode: string]: PollResult } = {};
 
 export async function startPoll(roomCode: string, channels: Set<string>) {
-	let joinedChannels = new Set<string>();
-	try {
-		for (const channel of channels) {
-			logger.debug("STR", `Joining channel ${channel}`);
-			await joinChannel(channel);
-			joinedChannels.add(channel);
-		}
-	} catch (e) {
-		logger.error("STR", `Failed to join last channel, parting from already joined channels`);
-		for (const channel of joinedChannels) {
-			logger.debug("STR", `Parting channel ${channel}`);
-			await leaveChannel(channel).catch(() => null);
-		}
-		throw e;
-	}
+	await watchChannels(...channels);
 
 	polls[roomCode] = {
 		startedAt: Date.now(),
@@ -38,17 +24,14 @@ export async function startPoll(roomCode: string, channels: Set<string>) {
 }
 
 export async function endPoll(roomCode: string, broadcastEnd: boolean = false) {
-	try {
-		for (const channel of polls[roomCode].channels) {
-			logger.debug("STR", `Parting channel ${channel}`);
-			await leaveChannel(channel).catch(() => null);
-		}
-	} finally {
-		if (broadcastEnd) {
-			broadcast(roomCode, "poll-ended", getPollVotes(roomCode)!);
-		}
-		delete polls[roomCode];
+	if (polls[roomCode] === undefined) return;
+
+	// Asynchronously unwatch channels, so results can be returned immediately
+	unwatchChannels(...polls[roomCode].channels).catch(() => null);
+	if (broadcastEnd) {
+		broadcast(roomCode, "poll-ended", getPollVotes(roomCode)!);
 	}
+	delete polls[roomCode];
 }
 
 const POLL_MAX_TIME = 15 * 60 * 1000 * 1000; // 15 minutes

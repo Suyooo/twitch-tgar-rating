@@ -3,10 +3,11 @@ import logger from "$lib/logger.js";
 import { recordVote } from "$lib/server/store.js";
 
 const RATING_REGEX = /.*?(-?\d+).+?10/;
-const TEST = false;
+const TEST = false; // Instead of reading ratings, just assign a pseudo-random score for every incoming message
 
 let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
+let joinPartLimit = 20;
 
 export async function startBot() {
 	const opts = {
@@ -44,43 +45,69 @@ export async function startBot() {
 	});
 
 	client.connect();
+	// Join/Part rate limit: 20 per 10s bucket, go with 15s to be safe
+	setInterval(() => (joinPartLimit = 20), 15000);
 }
 
-export async function joinChannel(channel: string) {
+export async function watchChannels(...channels: string[]) {
 	if (!client) return;
+	if (joinPartLimit < channels.length) {
+		throw new Error("Rate Limit");
+	}
+	joinPartLimit -= channels.length;
 
-	if (channel in channelRefCount) {
-		channelRefCount[channel]++;
-		logger.debug("CHAT", `${channel} already watched, new ref count = ${channelRefCount[channel]}`);
-	} else {
-		channelRefCount[channel] = 1;
-		try {
-			await client.join(channel);
-			logger.debug("CHAT", `${channel} joined, starting timeout`);
-			await new Promise((r) => setTimeout(r, 500));
-		} catch (e) {
-			delete channelRefCount[channel];
-			logger.error("CHAT", `Failed to join ${channel}, resetting ref count`);
-			throw e;
+	for (let i = 0; i < channels.length; i++) {
+		const channel = channels[i];
+		logger.debug("CHAT", `Watching ${channel}`);
+		if (channel in channelRefCount) {
+			channelRefCount[channel]++;
+			logger.debug("CHAT", `${channel} already watched, new ref count = ${channelRefCount[channel]}`);
+			joinPartLimit++; // no join attempted
+		} else {
+			channelRefCount[channel] = 1;
+			try {
+				await client.join(channel);
+				logger.debug("CHAT", `${channel} joined`);
+			} catch (e) {
+				delete channelRefCount[channel];
+				logger.error("CHAT", `Failed to join ${channel}, resetting ref count`);
+
+				// "Refund" unused limit
+				joinPartLimit += channels.length - 1 - i;
+				// Asynchronously part channels watched before the error, so we can return the error immediately
+				const joinedChannels = channels.slice(0, i);
+				logger.error("CHAT", `Parting already successfully joined channels: ${joinedChannels}`);
+				unwatchChannels(...joinedChannels).catch(() => null);
+
+				throw e;
+			}
 		}
 	}
 }
 
-export async function leaveChannel(channel: string) {
+export async function unwatchChannels(...channels: string[]) {
 	if (!client) return;
+	while (joinPartLimit < channels.length) {
+		logger.error("CHAT", `Waiting for rate limit to refresh before parting`);
+		await new Promise((r) => setTimeout(r, 1000));
+	}
+	joinPartLimit -= channels.length;
 
-	if (channelRefCount[channel] > 1) {
-		channelRefCount[channel]--;
-		logger.debug("CHAT", `${channel} still watched, new ref count = ${channelRefCount[channel]}`);
-	} else {
-		delete channelRefCount[channel];
-		try {
-			await client.part(channel);
-			logger.debug("CHAT", `${channel} parted, starting timeout`);
-			await new Promise((r) => setTimeout(r, 500));
-		} catch (e) {
-			logger.error("CHAT", `Failed to part ${channel}`);
-			throw e;
+	for (const channel of channels) {
+		logger.debug("CHAT", `Unwatching ${channel}`);
+		if (channelRefCount[channel] > 1) {
+			channelRefCount[channel]--;
+			logger.debug("CHAT", `${channel} still watched, new ref count = ${channelRefCount[channel]}`);
+			joinPartLimit++; // no part attempted
+		} else {
+			delete channelRefCount[channel];
+			try {
+				await client.part(channel);
+				logger.debug("CHAT", `${channel} parted`);
+			} catch (e) {
+				// Ignore error, assume bot has left the channel or server already - try to leave the other channels
+				logger.error("CHAT", `Failed to part ${channel}`);
+			}
 		}
 	}
 }

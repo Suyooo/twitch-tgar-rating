@@ -1,6 +1,6 @@
 import type { PollVotes } from "$lib/server/store.js";
 
-export type CallbackResponse<T> = (T & { error: false }) | { error: true };
+export type CallbackResponse<T> = (T & { error: null }) | { error: string };
 
 export interface ClientToServerEvents {
 	"poll-start": (channels: string[], callback: (reply: CallbackResponse<{}>) => void) => void;

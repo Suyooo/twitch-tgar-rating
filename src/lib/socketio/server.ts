@@ -38,15 +38,20 @@ export function startSocketIO() {
 					socket.id + " wants to start a poll on " + roomCode + ", channels " + channels.toString()
 				);
 				if (!Array.isArray(channels) || channels.length === 0 || channels.length > 10) {
-					callback({ error: true });
+					callback({ error: "Invalid channel array" });
 				}
 
 				try {
 					await startPoll(roomCode, new Set<string>(channels));
 					socket.to(roomCode).emit("poll-started");
-					callback({ error: false });
-				} catch (e) {
-					callback({ error: true });
+					callback({ error: null });
+				} catch (e: any) {
+					logger.error("SIO", "Handling poll-start failed: " + (e.message ?? e));
+					if (e.message === "Rate Limit") {
+						callback({ error: "Rate Limit" });
+					} else {
+						callback({ error: "Internal error" });
+					}
 				}
 			});
 
@@ -56,30 +61,32 @@ export function startSocketIO() {
 				try {
 					const finalResult = getPollVotes(roomCode);
 					if (finalResult === undefined) {
-						callback({ error: true });
+						callback({ error: "Poll does not exist" });
 						return;
 					}
 
 					await endPoll(roomCode);
 					socket.to(roomCode).emit("poll-ended", finalResult);
-					callback({ error: false, finalResult });
-				} catch (e) {
-					callback({ error: true });
+					callback({ error: null, finalResult });
+				} catch (e: any) {
+					logger.error("SIO", "Handling poll-end failed: " + (e.message ?? e));
+					callback({ error: "Internal error" });
 				}
 			});
 
 			socket.on("overlay-move", async (num, callback) => {
 				logger.debug("SIO", socket.id + " wants to move the overlay for " + roomCode + " to position " + num);
 				if (num !== 0 && num !== 1 && num !== 2) {
-					callback({ error: true });
+					callback({ error: "Invalid position" });
 					return;
 				}
 
 				try {
 					socket.to(roomCode).emit("overlay-moved", num);
-					callback({ error: false });
-				} catch (e) {
-					callback({ error: true });
+					callback({ error: null });
+				} catch (e: any) {
+					logger.error("SIO", "Handling overlay-move failed: " + (e.message ?? e));
+					callback({ error: "Internal error" });
 				}
 			});
 		}

@@ -55,8 +55,12 @@
 				pollBusy = false;
 				if (err) {
 					alert("Request timed out, please check your internet connection or try refreshing!");
-				} else if (response.error) {
-					alert("There was an error starting the poll - make sure the channels are spelled correctly!");
+				} else if (response.error !== null) {
+					if (response.error === "Rate Limit") {
+						alert("The bot is currently rate limited. Try again in 20 seconds!");
+					} else {
+						alert("There was an error starting the poll - make sure the channels are spelled correctly!");
+					}
 				} else {
 					pollActive.set(true);
 					pollVotes.set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -72,7 +76,7 @@
 				pollBusy = false;
 				if (err) {
 					alert("Request timed out, please check your internet connection or try refreshing!");
-				} else if (response.error) {
+				} else if (response.error !== null) {
 					alert(
 						"There was an error stopping the poll - please try refreshing the control panel and stream display!"
 					);
@@ -92,7 +96,7 @@
 				positionBusy = false;
 				if (err) {
 					alert("Request timed out, please check your internet connection or try refreshing!");
-				} else if (response.error) {
+				} else if (response.error !== null) {
 					alert(
 						"There was an error moving the overlay - please try refreshing the control panel and stream display!"
 					);
