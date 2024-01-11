@@ -2,7 +2,7 @@ import tmi from "tmi.js";
 import logger from "$lib/logger.js";
 import { recordVote } from "$lib/server/store.js";
 
-const RATING_REGEX = /.*?(-?\d+).+?10/;
+const RATING_REGEX = /\D*?(-?\d+[.,]?\d*)\D+?10/;
 const TEST = false; // Instead of reading ratings, just assign a pseudo-random score for every incoming message
 
 let client: tmi.Client | undefined = undefined;

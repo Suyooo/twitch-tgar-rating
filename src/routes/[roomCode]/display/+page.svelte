@@ -29,7 +29,7 @@
 >
 	<div class="barcont" style:height="{barHeight}vh">
 		<div class="bar">
-			<div class="bar-title" style:font-size="{barHeight - 4}vh">
+			<div class="bar-title">
 				{#if $pollActive}
 					<div transition:slide={{}}>Rate This Game!</div>
 				{:else}
@@ -43,10 +43,10 @@
 					<div transition:slide={{}}>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</div>
 				{/if}
 			</div>
-			<div class="bar-score" style:font-size="{barHeight - 2}vh">
+			<div class="bar-score">
 				<div style="height:0;overflow:hidden;">0.0<Star /></div>
 				{#if $pollTotalVotes > 0}
-					<div in:slide={{}}>{$pollAverage.toFixed(1)}<Star /></div>
+					<div in:slide={{}}>{$pollAverage >= 10 ? 10 : $pollAverage.toFixed(1)}<Star /></div>
 				{/if}
 			</div>
 		</div>
@@ -108,12 +108,16 @@
 		align-items: center;
 	}
 	.bar-title {
+		position: absolute;
+		width: 100%;
+		left: 0;
+		font-size: 8vh;
 		font-weight: 900;
 		text-transform: uppercase;
 		color: #facc15;
 	}
 	.bar-rotator {
-		padding: 0 0.5em;
+		padding: 0 0.25em;
 		flex-grow: 1;
 		font-size: 4vh;
 		text-align: right;
@@ -123,6 +127,7 @@
 		text-transform: uppercase;
 	}
 	.bar-score {
+		font-size: 10vh;
 		font-weight: 900;
 		text-transform: uppercase;
 		text-align: right;
