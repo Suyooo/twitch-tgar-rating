@@ -9,7 +9,7 @@ let client: tmi.Client | undefined = undefined;
 const channelRefCount: { [channelName: string]: number } = {};
 let joinPartLimit = 20;
 
-export async function startBot() {
+export async function startTwitchBot() {
 	const opts = {
 		options: {
 			debug: logger.IS_DEBUG,
@@ -47,6 +47,11 @@ export async function startBot() {
 	await client.connect();
 	// Join/Part rate limit: 20 per 10s bucket, go with 15s to be safe
 	setInterval(() => (joinPartLimit = 20), 15000);
+}
+
+export async function stopTwitchBot() {
+	await client?.disconnect();
+	client = undefined;
 }
 
 export async function watchChannels(...channels: string[]) {

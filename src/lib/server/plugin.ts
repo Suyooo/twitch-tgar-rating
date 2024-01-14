@@ -1,6 +1,8 @@
 import type { Plugin } from "vite";
 
 export default function backendPlugin(): Plugin {
+	let lastStopBackend: () => Promise<void>;
+
 	return {
 		name: "backend-plugin",
 		enforce: "post",
@@ -19,16 +21,35 @@ export default function backendPlugin(): Plugin {
 				if (!server.httpServer) {
 					throw new Error("No httpServer to inject into");
 				}
-				const { default: startBackend } = await server.ssrLoadModule("$lib/server/index.ts");
+				const { default: startBackend, stopBackend } = await server.ssrLoadModule("$lib/server/index.ts");
 				startBackend(server.httpServer);
+				lastStopBackend = stopBackend;
 			};
 		},
-		// TODO: how much has to be handled here?
-		/*handleHotUpdate: async (ctx) => {
-			const { stopSocketIOServer, setupSocketIOServer } =
-				await ctx.server.ssrLoadModule("$lib/socketio/server.ts");
-			stopSocketIOServer();
-			setupSocketIOServer(ctx.server.httpServer);
-		},*/
+		handleHotUpdate: async (ctx) => {
+			console.log(ctx);
+
+			// If a backend module is updated, restart all services (since they do not support HMR seperately)
+			for (const module of ctx.modules) {
+				for (const importer of module.importers) {
+					if (importer.url === "$lib/server/index.ts") {
+						await lastStopBackend();
+
+						try {
+							const { default: startBackend, stopBackend } =
+								await ctx.server.ssrLoadModule("$lib/server/index.ts");
+							startBackend(ctx.server.httpServer);
+							lastStopBackend = stopBackend;
+
+							return ctx.modules;
+						} catch (e) {
+							lastStopBackend = () => new Promise<void>((resolve) => resolve());
+							throw e;
+						}
+					}
+				}
+			}
+			return ctx.modules;
+		},
 	};
 }

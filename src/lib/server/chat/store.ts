@@ -35,9 +35,10 @@ export async function endPoll(roomCode: string, broadcastEnd: boolean = false) {
 }
 
 const POLL_MAX_TIME = 15 * 60 * 1000 * 1000; // 15 minutes
+let roomCleanupInterval: NodeJS.Timeout | undefined = undefined;
 
 export function setupRoomCleanup() {
-	setInterval(() => {
+	roomCleanupInterval = setInterval(() => {
 		for (const roomCode of Object.keys(polls)) {
 			if (Date.now() > polls[roomCode].startedAt + POLL_MAX_TIME) {
 				logger.debug("STR", `Poll for room ${roomCode} timed out`);
@@ -45,6 +46,10 @@ export function setupRoomCleanup() {
 			}
 		}
 	}, 60 * 1000); // 1 minute
+}
+
+export function stopRoomCleanup() {
+	if (roomCleanupInterval) clearInterval(roomCleanupInterval);
 }
 
 export function recordVote(channel: string, userId: number, rating: number) {

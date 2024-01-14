@@ -92,7 +92,8 @@ export function setupSocketIOServer(httpServer: HttpServer | Http2SecureServer) 
 	logger.log("SIO", "Socket.IO started");
 }
 
-export function unsetSocketIOServer() {
+export async function stopSocketIOServer() {
+	io?.disconnectSockets(true);
 	io = undefined;
 }
 
