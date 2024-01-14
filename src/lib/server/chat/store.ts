@@ -1,6 +1,6 @@
-import logger from "$lib/logger.js";
-import { unwatchChannels, watchChannels } from "$lib/server/chat.js";
-import { broadcast } from "$lib/socketio/server.js";
+import { unwatchChannels, watchChannels } from "$lib/server/chat/twitch.js";
+import logger from "$lib/server/logger.js";
+import { broadcast } from "$lib/server/socketio/server.js";
 
 export type PollVotes = [number, number, number, number, number, number, number, number, number, number, number];
 type PollResult = {

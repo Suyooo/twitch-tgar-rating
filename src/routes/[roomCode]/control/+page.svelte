@@ -2,7 +2,7 @@
 	import { browser } from "$app/environment";
 	import { page } from "$app/stores";
 	import { pollHandler } from "$lib/pollhandler.js";
-	import type { PollVotes } from "$lib/server/store.js";
+	import type { PollVotes } from "$lib/server/chat/store.js";
 	import { createSocket } from "$lib/socketio/client.js";
 	import { slide } from "svelte/transition";
 	import Collapse from "$lib/icons/Collapse.svelte";

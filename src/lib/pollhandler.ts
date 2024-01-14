@@ -1,6 +1,6 @@
 import { type Readable, type Writable, derived, writable } from "svelte/store";
 import type { Socket } from "socket.io-client";
-import type { PollVotes } from "$lib/server/store.js";
+import type { PollVotes } from "$lib/server/chat/store.js";
 import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/events.js";
 
 type Handlers = {

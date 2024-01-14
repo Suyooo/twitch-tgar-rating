@@ -1,6 +1,6 @@
 import tmi from "tmi.js";
-import logger from "$lib/logger.js";
-import { recordVote } from "$lib/server/store.js";
+import { recordVote } from "$lib/server/chat/store.js";
+import logger from "$lib/server/logger.js";
 
 const RATING_REGEX = /\D*?(-?\d+[.,]?\d*)\D+?10/;
 const TEST = false; // Instead of reading ratings, just assign a pseudo-random score for every incoming message
@@ -44,7 +44,7 @@ export async function startBot() {
 		logger.log("CHAT", `Bot connected to Twitch chat servers`);
 	});
 
-	client.connect();
+	await client.connect();
 	// Join/Part rate limit: 20 per 10s bucket, go with 15s to be safe
 	setInterval(() => (joinPartLimit = 20), 15000);
 }

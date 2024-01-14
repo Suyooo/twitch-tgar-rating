@@ -1,4 +1,4 @@
-import type { PollVotes } from "$lib/server/store.js";
+import type { PollVotes } from "$lib/server/chat/store.js";
 
 export type CallbackResponse<T> = (T & { error: null }) | { error: string };
 

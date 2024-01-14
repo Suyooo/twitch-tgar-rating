@@ -1,19 +1,16 @@
-import { env } from "$env/dynamic/public";
+import type { Server as HttpServer } from "node:http";
+import type { Http2SecureServer } from "node:http2";
 import { Server } from "socket.io";
-import logger from "$lib/logger.js";
-import { endPoll, getPollVotes, startPoll } from "$lib/server/store.js";
+import { endPoll, getPollVotes, startPoll } from "$lib/server/chat/store.js";
+import logger from "$lib/server/logger.js";
 import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/events.js";
 
 let io: Server<ClientToServerEvents, ServerToClientEvents> | undefined = undefined;
 
-export function startSocketIO() {
+export function setupSocketIOServer(httpServer: HttpServer | Http2SecureServer) {
 	if (io !== undefined) return;
-
-	io = new Server(3001, {
+	io = new Server(httpServer, {
 		serveClient: false,
-		cors: {
-			origin: env.PUBLIC_APP_URL,
-		},
 	});
 
 	io.on("connection", (socket) => {
@@ -93,6 +90,10 @@ export function startSocketIO() {
 	});
 
 	logger.log("SIO", "Socket.IO started");
+}
+
+export function unsetSocketIOServer() {
+	io = undefined;
 }
 
 export function broadcast<E extends keyof ServerToClientEvents>(
