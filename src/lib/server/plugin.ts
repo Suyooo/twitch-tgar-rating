@@ -10,8 +10,8 @@ export default function backendPlugin(): Plugin {
 			// In build mode, add the backend as an entrypoint, so the regular build process catches it
 			// The adapter can then import and call the module
 			if (env.command === "build") {
-				/* @ts-ignore */
-				config.build.rollupOptions.input["backend"] = "src/lib/server/index.ts";
+				/* @ts-ignore svelte-vite-plugin-setup is creating this object */
+				config.build.rollupOptions.input["backend"] = "$lib/server/index.ts";
 			}
 			return config;
 		},
@@ -27,8 +27,6 @@ export default function backendPlugin(): Plugin {
 			};
 		},
 		handleHotUpdate: async (ctx) => {
-			console.log(ctx);
-
 			// If a backend module is updated, restart all services (since they do not support HMR seperately)
 			for (const module of ctx.modules) {
 				for (const importer of module.importers) {
@@ -40,7 +38,6 @@ export default function backendPlugin(): Plugin {
 								await ctx.server.ssrLoadModule("$lib/server/index.ts");
 							startBackend(ctx.server.httpServer);
 							lastStopBackend = stopBackend;
-
 							return ctx.modules;
 						} catch (e) {
 							lastStopBackend = () => new Promise<void>((resolve) => resolve());
