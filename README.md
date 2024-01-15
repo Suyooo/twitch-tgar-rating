@@ -12,21 +12,24 @@ The stream overlay is a web page embedded via OBS' Browser Source, and controlle
 either opened on the side or on another device. When you start a poll, the bot will join your channel as an anonymous
 guest user - no logins or permissions needed - to read the chat there, and records all ratings sent in it.
 
-## How can I run it?
+## How do I run it?
 
 There are no download-and-run executables yet, but hopefully soon!
 
 For now, to run this on your own machine, download this repo (click the green "Code" button at the top, pick "Download
 ZIP", extract it somewhere) and [install the Node.JS runtime](https://nodejs.org/) (I've tested this project on LTS
 version 20). Open a terminal in the repo folder (where the `package.json` file is located), and run `npm install` to
-download dependencies. Create a file called `.env`, and fill it with `PUBLIC_APP_URL=http://localhost:5173`. Then, use
-`npm run dev` to run the project. Once it's started up, visit `http://localhost:5173` in your browser to see the app.
+download dependencies. Create a file called `.env.development`, and fill it with `PUBLIC_APP_URL=http://localhost:5173`.
+Then, use `npm run dev` to run the project. Once it's started up, visit `http://localhost:5173` in your browser to see
+the app.
 
-Note that this way, the app is only reachable from the same machine you are running it on. You can't open the control
-panel on another device, or send the overlay to others. If you want to do that, you have to build the app (see below)
-and run it on a seperate server.
+If you run the stream on another machine than the one you run this server on, or want to have your control panel on
+another device like your phone, you need to replace `localhost` in the control panel and stream overlay URLs you copy
+from your browser, with the local IP or hostname of the computer that is hosting. How exactly you get those depends on
+your operating system - try searching for how to find your local network IP. You might also need to allow the server to
+pass through the firewall on your computer (not the one on your router!).
 
-## How can I build it?
+## How do I build it?
 
 -   If you use Docker, you can simply run `docker build` and get a Docker container ready to run. You just need to add
     the environment variables and port mappings to the `run` command or Compose file.
@@ -34,14 +37,12 @@ and run it on a seperate server.
     `package.json` to wherever you want to run it from, where you can start it using `node build`, assuming Node is
     installed on the machine. Remember to set the environment variables.
 
-In both cases, the app will run on port 3000 by default, and the Socket.IO server is reachable on port 3001. You must
-set the `PUBLIC_APP_URL` environment variable to the URL where the site is externally reachable (without a trailing
-slash). Optionally, you can also define the environment variable `PUBLIC_SOCKETIO_URL`. It will default to
-`[PUBLIC_APP_URL]:3001`, but if you have the [Socket.IO server behind a reverse proxy](https://socket.io/docs/v4/reverse-proxy/)
-for example, you can override the URL here.
+In both cases, the app will run on port 3000 by default, which can be changed with the `PORT` environment variable. If
+you are using a reverse proxy, [make sure to set it up correctly for Socket.IO in the `/socket.io` subpath](https://socket.io/docs/v4/reverse-proxy/).
 
 ## Neat stuff I used for this
 
 -   [SvelteKit](https://kit.svelte.dev/)
 -   [Socket.IO](https://socket.io/)
+-   [tmi.js](https://tmijs.com/)
 -   [IconSVG](https://iconsvg.xyz/)
