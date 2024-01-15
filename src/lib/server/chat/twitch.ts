@@ -12,7 +12,7 @@ let joinPartLimit = 20;
 export async function startTwitchBot() {
 	const opts = {
 		options: {
-			debug: logger.IS_DEBUG,
+			debug: logger.isDebug(),
 			skipMembership: true,
 			skipUpdatingEmotesets: true,
 			updateEmotesetsTimer: 0,
