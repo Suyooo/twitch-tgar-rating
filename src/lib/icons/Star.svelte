@@ -1,9 +1,7 @@
 <svg
 	xmlns="http://www.w3.org/2000/svg"
-	style="margin-left: .1em"
-	width=".7em"
-	height=".7em"
-	viewBox="0 0 24 24"
+	preserveAspectRatio="xMidYMid"
+	viewBox="-4 -4 32 32"
 	fill="currentColor"
 	stroke="currentColor"
 	stroke-width="4"

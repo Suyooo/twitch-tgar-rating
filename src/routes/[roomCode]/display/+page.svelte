@@ -139,6 +139,10 @@
 		white-space: nowrap;
 		color: var(--color-primary);
 	}
+	.bar-score :global(svg) {
+		margin-bottom: -0.15em;
+		width: 1em;
+	}
 
 	.graphcont {
 		position: relative;
