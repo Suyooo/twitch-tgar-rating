@@ -14,5 +14,4 @@ COPY package*.json ./
 COPY --from=build --chown=node:node /home/node/app/build ./build
 USER node
 EXPOSE 3000
-EXPOSE 3001
 CMD [ "node", "build" ]
