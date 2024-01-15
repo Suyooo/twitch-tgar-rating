@@ -40,6 +40,31 @@ pass through the firewall on your computer (not the one on your router!).
 In both cases, the app will run on port 3000 by default, which can be changed with the `PORT` environment variable. If
 you are using a reverse proxy, [make sure to set it up correctly for Socket.IO in the `/socket.io` subpath](https://socket.io/docs/v4/reverse-proxy/).
 
+## Styling
+
+You can use the "Custom CSS" field in the settings for OBS' Browser Source to customize the overlay. Any CSS properties
+work, use the selectors in the image below. Additionally, you can overwrite the `--color-primary` and
+`--color-secondary` variables in the `#overlay` rule to change the colors for all elements at once instead of having to
+override them on each of them seperately.
+
+![Diagram matching the overlay elements to CSS selectors](styling_selectors.svg?raw=true)
+
+### Example
+
+    #overlay {
+        --color-primary: #ec4899;
+        --color-secondary: #fbcfe8;
+        font-family: "FreeMono";
+    }
+    #overlay .bar-title {
+        letter-spacing: 10px;
+    }
+    #overlay .bar-rotator {
+        font-size: 30px;
+    }
+
+![Example showing the CSS overrides above in action](styling_example.png?raw=true)
+
 ## Neat stuff I used for this
 
 -   [SvelteKit](https://kit.svelte.dev/)

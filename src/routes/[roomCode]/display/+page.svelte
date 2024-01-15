@@ -24,6 +24,7 @@
 </script>
 
 <div
+	id="overlay"
 	class="overlay"
 	style:top="{showStatus === 0 ? 100 : 100 - (showStatus === 1 ? barHeight : barHeight + graphHeight)}%"
 >
@@ -62,9 +63,10 @@
 			</div>
 			<div class="graph-bar-row">
 				{#each $pollPercentages as pct}
-					{@const barHeight = $pollTotalVotes === 0 ? 0 : pct / pollHighestPercentage}
+					{@const barHeight =
+						$pollTotalVotes === 0 || pct === 0 ? "1px" : `${(pct / pollHighestPercentage) * 100}%`}
 					<div class="graph-column">
-						<div class="graph-bar" style:height="{barHeight * 100}%"></div>
+						<div class="graph-bar" style:height={barHeight}></div>
 					</div>
 				{/each}
 			</div>
@@ -82,6 +84,7 @@
 		margin: 0;
 		padding: 0;
 		background: transparent;
+		overflow: hidden;
 	}
 
 	.overlay {
@@ -91,6 +94,8 @@
 		background: linear-gradient(black, rgba(0, 0, 0, 0.95) 15px, black 100%);
 		color: white;
 		transition: top ease-out 0.5s;
+		--color-primary: #facc15;
+		--color-secondary: #fef08a;
 	}
 
 	.barcont {
@@ -114,7 +119,7 @@
 		font-size: 8vh;
 		font-weight: 900;
 		text-transform: uppercase;
-		color: #facc15;
+		color: var(--color-primary);
 	}
 	.bar-rotator {
 		padding: 0 0.25em;
@@ -123,7 +128,7 @@
 		text-align: right;
 	}
 	.bar-rotator b {
-		color: #fef08a;
+		color: var(--color-secondary);
 		text-transform: uppercase;
 	}
 	.bar-score {
@@ -132,7 +137,7 @@
 		text-transform: uppercase;
 		text-align: right;
 		white-space: nowrap;
-		color: #facc15;
+		color: var(--color-primary);
 	}
 
 	.graphcont {
@@ -185,8 +190,7 @@
 		left: 1rem;
 		right: 1rem;
 		bottom: 0;
-		background-color: #facc15;
-		border-bottom: 1px solid #facc15;
+		background-color: var(--color-primary);
 		transition: height ease-out 0.3s;
 	}
 </style>
