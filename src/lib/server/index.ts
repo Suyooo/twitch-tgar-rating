@@ -1,12 +1,11 @@
 import { env } from "$env/dynamic/public";
-import type { Server as HttpServer } from "node:http";
-import type { Http2SecureServer } from "node:http2";
+import type { Server } from "node:http";
 import { setupRoomCleanup, stopRoomCleanup } from "$lib/server/chat/store.js";
 import { startTwitchBot, stopTwitchBot } from "$lib/server/chat/twitch.js";
 import logger from "$lib/server/logger.js";
 import { setupSocketIOServer, stopSocketIOServer } from "$lib/server/socketio/server.js";
 
-export default function startBackend(server: HttpServer | Http2SecureServer) {
+export function startBackend(server: Server) {
 	if (env.PUBLIC_APP_URL === undefined || env.PUBLIC_APP_URL === "") {
 		logger.error("APP", "Environment variable PUBLIC_APP_URL is not set. Exiting.");
 		process.exit(1);

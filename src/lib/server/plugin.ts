@@ -21,7 +21,7 @@ export default function backendPlugin(): Plugin {
 				if (!server.httpServer) {
 					throw new Error("No httpServer to inject into");
 				}
-				const { default: startBackend, stopBackend } = await server.ssrLoadModule("$lib/server/index.ts");
+				const { startBackend, stopBackend } = await server.ssrLoadModule("$lib/server/index.ts");
 				startBackend(server.httpServer);
 				lastStopBackend = stopBackend;
 			};
@@ -36,7 +36,7 @@ export default function backendPlugin(): Plugin {
 						await lastStopBackend();
 
 						try {
-							const { default: startBackend, stopBackend } =
+							const { startBackend, stopBackend } =
 								await ctx.server.ssrLoadModule("$lib/server/index.ts");
 							startBackend(ctx.server.httpServer);
 							lastStopBackend = stopBackend;

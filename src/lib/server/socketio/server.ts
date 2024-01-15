@@ -1,5 +1,4 @@
 import type { Server as HttpServer } from "node:http";
-import type { Http2SecureServer } from "node:http2";
 import { Server } from "socket.io";
 import { endPoll, getPollVotes, startPoll } from "$lib/server/chat/store.js";
 import logger from "$lib/server/logger.js";
@@ -7,7 +6,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from "$lib/socketio/e
 
 let io: Server<ClientToServerEvents, ServerToClientEvents> | undefined = undefined;
 
-export function setupSocketIOServer(httpServer: HttpServer | Http2SecureServer) {
+export function setupSocketIOServer(httpServer: HttpServer) {
 	if (io !== undefined) return;
 	io = new Server(httpServer, {
 		serveClient: false,
