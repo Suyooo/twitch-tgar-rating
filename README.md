@@ -51,6 +51,7 @@ override them on each of them seperately.
 
 ### Example
 
+```css
     #overlay {
         --color-primary: #ec4899;
         --color-secondary: #fbcfe8;
@@ -62,6 +63,7 @@ override them on each of them seperately.
     #overlay .bar-rotator {
         font-size: 30px;
     }
+```
 
 ![Example showing the CSS overrides above in action](styling_example.png?raw=true)
 

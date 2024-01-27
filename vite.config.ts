@@ -1,6 +1,6 @@
+import backend from "svelte-adapter-node-backend/plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
-import backend from "./src/lib/server/plugin.js";
 
 export default defineConfig({
 	plugins: [sveltekit(), backend()],
