@@ -9,7 +9,7 @@ export default defineConfig({
 	},
 	build: {
 		rollupOptions: {
-			external: ["socket.io"], // avoid warnings during build, will still be bundled in adapter
+			external: ["socket.io", "open"], // avoid errors during build, will still be bundled in adapter
 		},
 	},
 });

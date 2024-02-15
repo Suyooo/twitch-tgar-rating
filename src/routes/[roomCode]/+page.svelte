@@ -20,9 +20,9 @@
 		on:mousedown={selectAll}
 	/>
 	<div style="margin-top: 0.5em">
-		This is where you will start and stop polls, and can slide the stream overlay in and out.<br /><br />
-		Open this page on whatever you want to use for control. You can copy the link to a second device like a phone, or
-		just open it on your streaming PC:
+		This is where you can start and stop polls, and can slide the stream overlay in and out.<br /><br />
+		Open this page on whatever device you want to use for controlling the overlay. You can copy the link to a second
+		device like a phone, or just open it on this PC:
 	</div>
 	<div>
 		<button on:click={() => window.open(`${env.PUBLIC_APP_URL}/${$page.params.roomCode}/control`, "_blank")}>
@@ -47,9 +47,8 @@
 		1920x1080, the overlay does not need other specific settings or any permissions. You can then position it
 		however you'd like, make sure to use the Overlay Position buttons on the Control Panel to test the height.<br
 		/><br />
-		The overlay will slide in from the bottom (you can't change that right now, but I can make the overlay a sidebar
-		instead if that would look nicer). You can change the numbers at the end of the URL to change how high the bar and
-		graph parts of the overlay will be, defined in percent of the Browser Source height.
+		The overlay will slide in from the bottom. You can change the numbers at the end of the URL to change how high the
+		bar and graph parts of the overlay will be, defined in percent of the Browser Source height.
 	</div>
 
 	<Footer />
