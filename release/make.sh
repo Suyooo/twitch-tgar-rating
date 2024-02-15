@@ -25,7 +25,8 @@ linux () {
 	TMPDIR=$(mktemp -d)
 	mkdir "$TMPDIR/dist"
 
-	cp package.json README.md LICENSE "$TMPDIR/dist"
+	cp package.json "$TMPDIR/dist"
+	cp README.md LICENSE "$TMPDIR"
 	cp release/run_scripts/linux.sh "$TMPDIR/run.sh"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/linux-$1" "$TMPDIR/dist/node"
@@ -55,7 +56,8 @@ mac () {
 	TMPDIR=$(mktemp -d)
 	mkdir "$TMPDIR/dist"
 
-	cp package.json README.md LICENSE "$TMPDIR/dist"
+	cp package.json "$TMPDIR/dist"
+	cp README.md LICENSE "$TMPDIR"
 	cp release/run_scripts/mac.command "$TMPDIR/run.command"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/darwin-$1" "$TMPDIR/dist/node"
@@ -71,7 +73,7 @@ mac () {
 win () {
 	echo "Packing release for win-$1..."
 
-	if [ ! -f "dist/.cache/v$NODE_VERSION/win-$1" ]; then
+	if [ ! -f "dist/.cache/v$NODE_VERSION/win-$1.exe" ]; then
 		echo "  Downloading node..."
 		wget -q -O "dist/.cache/v$NODE_VERSION/win-$1.exe" "https://nodejs.org/dist/v$NODE_VERSION/win-$1/node.exe"
 	fi
@@ -80,7 +82,8 @@ win () {
 	TMPDIR=$(mktemp -d)
 	mkdir "$TMPDIR/dist"
 
-	cp package.json README.md LICENSE "$TMPDIR/dist"
+	cp package.json "$TMPDIR/dist"
+	cp README.md LICENSE "$TMPDIR"
 	cp release/run_scripts/win.bat "$TMPDIR/run.bat"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/win-$1.exe" "$TMPDIR/dist/node.exe"
