@@ -17,6 +17,7 @@ linux () {
 		tar -xf "$DLDIR/node.tar.xz" -C "$DLDIR"
 
 		cp "$DLDIR/node-v$NODE_VERSION-linux-$1/bin/node" "dist/.cache/v$NODE_VERSION/linux-$1"
+		cp "$DLDIR/node-v$NODE_VERSION-linux-$1/LICENSE" "dist/.cache/v$NODE_VERSION/LICENSE"
 		rm -rf "$DLDIR"
 	fi
 
@@ -28,6 +29,7 @@ linux () {
 	cp release/run_scripts/linux.sh "$TMPDIR/run.sh"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/linux-$1" "$TMPDIR/dist/node"
+	cp "dist/.cache/v$NODE_VERSION/LICENSE" "$TMPDIR/dist/LICENSE_for_node"
 	chmod +x "$TMPDIR/run.sh" "$TMPDIR/dist/node"
 
 	echo "  Creating zip..."
@@ -57,6 +59,7 @@ mac () {
 	cp release/run_scripts/mac.command "$TMPDIR/run.command"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/darwin-$1" "$TMPDIR/dist/node"
+	cp "dist/.cache/v$NODE_VERSION/LICENSE" "$TMPDIR/dist/LICENSE_for_node"
 	chmod +x "$TMPDIR/run.command" "$TMPDIR/dist/node"
 
 	echo "  Creating zip..."
@@ -81,6 +84,7 @@ win () {
 	cp release/run_scripts/win.bat "$TMPDIR/run.bat"
 	cp -r build "$TMPDIR/dist"
 	cp "dist/.cache/v$NODE_VERSION/win-$1.exe" "$TMPDIR/dist/node.exe"
+	cp "dist/.cache/v$NODE_VERSION/LICENSE" "$TMPDIR/dist/LICENSE_for_node"
 
 	echo "  Creating zip..."
 	rm -f "dist/tgar-twitch-rating-v$APP_VERSION-win-$1.zip"
