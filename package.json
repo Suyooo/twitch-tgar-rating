@@ -23,7 +23,7 @@
 		"socket.io": "^4.7.3",
 		"socket.io-client": "^4.7.3",
 		"svelte": "^4.2.7",
-		"svelte-adapter-node-backend": "^1.0.0",
+		"svelte-adapter-node-backend": "^2.0.0",
 		"svelte-check": "^3.6.0",
 		"tmi.js": "^1.8.5",
 		"tslib": "^2.4.1",
