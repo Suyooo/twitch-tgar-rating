@@ -17,8 +17,8 @@
 	<input style="width: 100%" readonly value="{env.PUBLIC_APP_URL}/{params.roomCode}/control" />
 	<div style="margin-top: 0.5em">
 		This is where you can start and stop polls, and can slide the stream overlay in and out.<br /><br />
-		Open this page on whatever device you want to use for controlling the overlay. You can copy the link to a second
-		device like a phone, or just open it on this PC:
+		Open this page on whatever device you want to use for controlling the overlay. You can copy the link to a second device
+		like a phone, or just open it on this PC:
 	</div>
 	<div>
 		<button onclick={() => window.open(`${env.PUBLIC_APP_URL}/${params.roomCode}/control`, "_blank")}>
