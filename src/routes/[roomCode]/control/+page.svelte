@@ -11,9 +11,12 @@
 	let { params } = $props();
 
 	let connected: boolean = $state(false);
-	const socket = browser ? createSocket(params.roomCode, true) : undefined;
-	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
-	if (browser) socket!.on("initial-state", () => (connected = true));
+	const socket = $derived(browser ? createSocket(params.roomCode, true) : undefined);
+	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = $derived(pollHandler(socket));
+	$effect(() => {
+		socket?.on("initial-state", () => (connected = true));
+		return () => socket?.disconnect();
+	});
 
 	let showChannels: boolean = $state(true),
 		channels: string[] = $state(browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : []),
