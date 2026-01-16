@@ -1,23 +1,24 @@
 <script lang="ts">
 	import { browser } from "$app/environment";
-	import { page } from "$app/stores";
+	import Collapse from "$lib/icons/Collapse.svelte";
+	import Expand from "$lib/icons/Expand.svelte";
 	import { pollHandler } from "$lib/pollhandler.js";
 	import type { PollVotes } from "$lib/server/chat/store.js";
 	import { createSocket } from "$lib/socketio/client.js";
-	import { slide } from "svelte/transition";
-	import Collapse from "$lib/icons/Collapse.svelte";
-	import Expand from "$lib/icons/Expand.svelte";
 	import type { CallbackResponse } from "$lib/socketio/events.js";
+	import { slide } from "svelte/transition";
 
-	let connected: boolean = false;
-	const socket = browser ? createSocket($page.params.roomCode, true) : undefined;
+	let { params } = $props();
+
+	let connected: boolean = $state(false);
+	const socket = browser ? createSocket(params.roomCode, true) : undefined;
 	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
 	if (browser) socket!.on("initial-state", () => (connected = true));
 
-	let showChannels: boolean = true,
-		channels: string[] = browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : [],
-		channelToAdd: string,
-		channelsToRemove: string[] = [];
+	let showChannels: boolean = $state(true),
+		channels: string[] = $state(browser ? JSON.parse(localStorage.getItem("tgar-channels") ?? "[]") : []),
+		channelToAdd: string = $state(""),
+		channelsToRemove: string[] = $state([]);
 
 	function addChannel() {
 		const channelName = channelToAdd
@@ -37,7 +38,7 @@
 		localStorage.setItem("tgar-channels", JSON.stringify(channels));
 	}
 
-	let pollBusy: boolean = false;
+	let pollBusy: boolean = $state(false);
 
 	function startPoll() {
 		if (channels === undefined || channels.length === 0) {
@@ -87,7 +88,7 @@
 			});
 	}
 
-	let positionBusy: boolean = false;
+	let positionBusy: boolean = $state(false);
 
 	function setPosition(num: 0 | 1 | 2) {
 		return () => {
@@ -110,15 +111,15 @@
 	{#if browser && connected}
 		<h2>Poll Controls</h2>
 		<div class="buttons">
-			<button disabled={$pollActive || pollBusy} on:click={startPoll}>Start Poll</button>
-			<button disabled={!$pollActive || pollBusy} on:click={endPoll}>End Poll</button>
+			<button disabled={$pollActive || pollBusy} onclick={startPoll}>Start Poll</button>
+			<button disabled={!$pollActive || pollBusy} onclick={endPoll}>End Poll</button>
 		</div>
 
 		<h2>Overlay Position</h2>
 		<div class="buttons">
-			<button disabled={positionBusy} on:click={setPosition(0)}>Hidden</button>
-			<button disabled={positionBusy} on:click={setPosition(1)}>Show Bar</button>
-			<button disabled={positionBusy} on:click={setPosition(2)}>Show Bar + Graph</button>
+			<button disabled={positionBusy} onclick={setPosition(0)}>Hidden</button>
+			<button disabled={positionBusy} onclick={setPosition(1)}>Show Bar</button>
+			<button disabled={positionBusy} onclick={setPosition(2)}>Show Bar + Graph</button>
 		</div>
 
 		<div style="margin-top: 1em;display:flex;align-items:center;">
@@ -128,7 +129,7 @@
 					({channels?.length ?? 0} channel{channels?.length === 1 ? "" : "s"})
 				</div>
 			{/if}
-			<button on:click={() => (showChannels = !showChannels)}>
+			<button onclick={() => (showChannels = !showChannels)}>
 				{#if showChannels}
 					Hide <Collapse />
 				{:else}
@@ -150,7 +151,7 @@
 						channelToAdd === undefined ||
 						channelToAdd.length === 0 ||
 						channels.length >= 10}
-					on:click={addChannel}
+					onclick={addChannel}
 				>
 					Add
 				</button>
@@ -170,7 +171,7 @@
 						channelsToRemove === undefined ||
 						channelsToRemove.length === 0 ||
 						channels.length === 0}
-					on:click={removeChannels}
+					onclick={removeChannels}
 				>
 					Remove selected
 				</button>
@@ -180,28 +181,32 @@
 		<h2 style="margin-top: 1em;">{$pollActive ? "Current " : $pollTotalVotes === 0 ? "" : "Final "} Results</h2>
 		{#if $pollTotalVotes > 0}
 			<table>
-				<tr class="resultsline">
-					<td colspan="3">
-						Score: <b>{$pollAverage.toFixed(1)} / 10</b> from
-						<b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
-					</td>
-				</tr>
-				<tr>
-					<th>Rating</th>
-					<th>Votes</th>
-					<th>Share</th>
-				</tr>
-				{#each $pollVotes as amount, rating}
-					<tr>
-						<td>{rating} / 10</td><td>{amount}</td><td>{($pollPercentages[rating] * 100).toFixed(0)}%</td>
+				<tbody>
+					<tr class="resultsline">
+						<td colspan="3">
+							Score: <b>{$pollAverage.toFixed(1)} / 10</b> from
+							<b>{$pollTotalVotes} vote{$pollTotalVotes === 1 ? "" : "s"}</b>
+						</td>
 					</tr>
-				{/each}
-				<tr class="resultsline">
-					<td colspan="3">
-						Average to four places:
-						<b>{$pollAverage.toFixed(4)}</b>
-					</td>
-				</tr>
+					<tr>
+						<th>Rating</th>
+						<th>Votes</th>
+						<th>Share</th>
+					</tr>
+					{#each $pollVotes as amount, rating}
+						<tr>
+							<td>{rating} / 10</td><td>{amount}</td><td
+								>{($pollPercentages[rating] * 100).toFixed(0)}%</td
+							>
+						</tr>
+					{/each}
+					<tr class="resultsline">
+						<td colspan="3">
+							Average to four places:
+							<b>{$pollAverage.toFixed(4)}</b>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		{:else if $pollActive}
 			No votes yet

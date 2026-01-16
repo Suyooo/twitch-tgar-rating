@@ -2,7 +2,7 @@
 	import { goto } from "$app/navigation";
 	import Footer from "$lib/Footer.svelte";
 
-	let roomCode: string;
+	let roomCode: string = $state("");
 </script>
 
 <div class="container">
@@ -13,7 +13,7 @@
 		who can guess the room code will be able use your control panel.
 	</div>
 	<input bind:value={roomCode} placeholder="Room Code" style="margin-top:1em" />
-	<button on:click={() => goto("/" + roomCode)}>Go</button>
+	<button onclick={() => goto("/" + roomCode)}>Go</button>
 
 	<Footer />
 </div>

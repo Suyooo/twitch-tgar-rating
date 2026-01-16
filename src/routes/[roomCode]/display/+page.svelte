@@ -1,25 +1,25 @@
 <script lang="ts">
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 	import Star from "$lib/icons/Star.svelte";
 	import { pollHandler } from "$lib/pollhandler.js";
 	import { createSocket } from "$lib/socketio/client.js";
 	import { slide } from "svelte/transition";
 
-	const socket = createSocket($page.params.roomCode, false);
-	const { pollActive, pollVotes, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
-	let pollHighestPercentage: number;
-	$: pollHighestPercentage = $pollPercentages.reduce((m, c) => Math.max(m, c));
+	let { params } = $props();
 
-	let barHeight: number, graphHeight: number;
-	$: barHeight = parseFloat($page.url.searchParams.get("barHeight") ?? "12.5");
-	$: graphHeight = parseFloat($page.url.searchParams.get("graphHeight") ?? "30");
+	const socket = createSocket(params.roomCode, false);
+	const { pollActive, pollTotalVotes, pollAverage, pollPercentages } = pollHandler(socket);
+	let pollHighestPercentage: number = $derived($pollPercentages.reduce((m, c) => Math.max(m, c)));
 
-	let showStatus: 0 | 1 | 2 = 0;
+	let barHeight: number = $derived(parseFloat(page.url.searchParams.get("barHeight") ?? "12.5")),
+		graphHeight: number = $derived(parseFloat(page.url.searchParams.get("graphHeight") ?? "30"));
+
+	let showStatus: 0 | 1 | 2 = $state(0);
 	socket.on("overlay-moved", (num) => {
 		showStatus = num;
 	});
 
-	let rotate: boolean = false;
+	let rotate: boolean = $state(false);
 	setInterval(() => (rotate = !rotate), 5000);
 </script>
 

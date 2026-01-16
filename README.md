@@ -72,18 +72,18 @@ override them on each of them seperately.
 
 ## Building
 
--   If you use Docker, you can simply run `docker build` and get a Docker container ready to run. You just need to add
-    the environment variables and port mappings to the `run` command or Compose file.
--   Otherwise, you can build the project by running `npm run build`. You can then copy the `build` folder and
-    `package.json` to wherever you want to run it from, where you can start it using `node build`, assuming Node is
-    installed on the machine. Remember to set the environment variables.
+- If you use Docker, you can simply run `docker build` and get a Docker container ready to run. You just need to add
+  the environment variables and port mappings to the `run` command or Compose file.
+- Otherwise, you can build the project by running `npm run build`. You can then copy the `build` folder and
+  `package.json` to wherever you want to run it from, where you can start it using `node build`, assuming Node is
+  installed on the machine. Remember to set the environment variables.
 
 In both cases, the app will run on port 3000 by default, which can be changed with the `PORT` environment variable. If
 you are using a reverse proxy, [make sure to set it up correctly for Socket.IO in the `/socket.io` subpath](https://socket.io/docs/v4/reverse-proxy/).
 
 ## Neat stuff I used for this
 
--   [SvelteKit](https://kit.svelte.dev/)
--   [Socket.IO](https://socket.io/)
--   [tmi.js](https://tmijs.com/)
--   [IconSVG](https://iconsvg.xyz/)
+- [SvelteKit](https://kit.svelte.dev/)
+- [Socket.IO](https://socket.io/)
+- [tmi.js](https://tmijs.com/)
+- [IconSVG](https://iconsvg.xyz/)
